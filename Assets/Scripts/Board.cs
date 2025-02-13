@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,8 @@ public class Board : MonoBehaviour
         return FindTile(e.transform.position);
     }
 
-    public ISet<GridElement> GetTile(Vector2Int coordinates) {
-        return GetElements().Where(e => GetCoordinates(e) == coordinates).ToHashSet();
+    public Tile GetTile(Vector2Int coordinates) {
+        return new Tile(GetElements().Where(e => GetCoordinates(e) == coordinates).ToHashSet());
     }
 
     private ISet<GridElement> GetElements() {

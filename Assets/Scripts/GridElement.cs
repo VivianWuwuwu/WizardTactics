@@ -16,6 +16,10 @@ public class GridElement : MonoBehaviour
         return gameObject.GetComponentInParent<Board>();
     }
 
+    public Vector2Int GetPosition() {
+        return GetBoard().FindTile(transform.position);
+    }
+
     private void OnDrawGizmosSelected()
     {
         var board = GetBoard();

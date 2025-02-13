@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-[RequireComponent(typeof(GridElement))]
 public class Teleport : ChoiceAction<Vector2Int>
 {
     [SerializeField]

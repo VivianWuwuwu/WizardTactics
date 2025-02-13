@@ -13,7 +13,7 @@ public abstract class ChoiceAction<Params> : Action
 {
     protected Params choice;
 
-    public void Build(Params given) {
+    public virtual void Build(Params given) {
         choice = given;
     }
 

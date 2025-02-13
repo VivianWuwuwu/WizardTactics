@@ -25,6 +25,7 @@ public class Combatant : MonoBehaviour
         yield return new WaitUntil(() => decision.IsCompleted);
         Debug.Log("Decided...");
         Action action = decision.Result;
+
         // Finally, trigger that action?
         action.Act();
     }
