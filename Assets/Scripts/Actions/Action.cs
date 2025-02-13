@@ -7,6 +7,7 @@ ANY action a player makes (Moving, Casting a spell, Teleporting, etc) is conside
 */
 public abstract class Action : MonoBehaviour
 {
+    [ContextMenu("Act")]
     public void Act() {
         var (canAct, why) = CanAct();
         if (!canAct) {

@@ -5,7 +5,7 @@ using UnityEngine;
 /*
 Orchestrator is responsible for managing a single turn
 */
-[RequireComponent(typeof(ElementLocator))]
+[RequireComponent(typeof(Board))]
 public class Orchestrator : MonoBehaviour
 {
     /*

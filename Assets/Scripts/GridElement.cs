@@ -12,18 +12,13 @@ public class GridElement : MonoBehaviour
         }
     }
 
-    private Grid GetGrid() {
-        return gameObject.GetComponentInParent<Grid>();
+    public Board GetGrid() {
+        return gameObject.GetComponentInParent<Board>();
     }
 
     private void OnDrawGizmosSelected()
     {
-        Grid g = GetGrid();
-
-        Vector3 center = g.GetCellCenterWorld(g.WorldToCell(transform.position));
-
-        // Draw the tile this gameobject is centered on
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(center, g.cellSize);
+        var board = GetGrid();
+        board.GizmosDrawTile(board.FindTile(transform.position), Color.blue);
     }
 }

@@ -340,6 +340,7 @@ GameObject:
   - component: {fileID: 838952716}
   - component: {fileID: 838952717}
   - component: {fileID: 838952718}
+  - component: {fileID: 838952719}
   m_Layer: 0
   m_Name: Circle
   m_TagString: Untagged
@@ -355,7 +356,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 838952712}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.47, y: 2.48, z: 0}
+  m_LocalPosition: {x: 2.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -451,6 +452,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6005327c11d4a6f4fb048d7267822050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &838952719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 838952712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4733eb26868355348ba4b7b4e2774251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inspectorChoice: {x: 2, y: 0}
 --- !u!1 &1251944911
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,6 +521,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1251944911}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66af377fd8e3ce845abfac80b25711a6, type: 3}
+  m_Script: {fileID: 11500000, guid: e30d1a3acb43a654b848b6d5341edfc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
