@@ -22,7 +22,7 @@ public class TileSelector : MonoBehaviour
         Vector3 mousePos = Input.mousePosition; 
         mousePos.z = 0f; // Ensure Z is zero for 2D games
 
-        Vector3 worldPos = Camera.current.ScreenToWorldPoint(mousePos);
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
         worldPos.z = 0f; // Keep it on the 2D plane
 
         transform.position = worldPos;
