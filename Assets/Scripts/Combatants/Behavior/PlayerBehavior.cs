@@ -13,26 +13,26 @@ public class PlayerBehavior : CombatantBehavior
 {
     public async override Task<Action> Decide()
     {
-        Action chosen = DecideAction();
+        Action chosen = await DecideAction();
+        Debug.Log($"Chose action {chosen.GetType().Name}");
         await Populate((dynamic)chosen);
         return chosen;
     }
 
-    private Action DecideAction() {
-        // TODO -> Add a UI picker to decide which action to use
-        return GetComponents<Action>().First();
+    private async Task<Action> DecideAction() {
+        Action[] choices = GetComponents<Action>();
+        int idx = await UIGenerator.instance.SelectTextChoice(choices.Select(a => a.GetType().Name).ToList());
+        return choices[idx];
     }
 
     /*
     We dispatch to most specific Populate method (via dynamic)
     */
     public override Task Populate(Action action) {
-        Debug.Log("No-op populating");
         return Task.CompletedTask; // No-Op
     }
 
     public async Task Populate(Teleport action) {
-        Debug.Log("Populating teleport");
         Board board = action.GetComponent<GridElement>().GetBoard();
         var selection = await UIGenerator.instance.SelectTile(board);
         action.Build(selection);
