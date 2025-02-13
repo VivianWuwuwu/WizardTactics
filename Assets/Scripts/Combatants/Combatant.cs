@@ -24,7 +24,7 @@ public class Combatant : MonoBehaviour
         var decision = GetComponent<CombatantBehavior>().Decide();
         yield return new WaitUntil(() => decision.IsCompleted);
         Debug.Log("Decided...");
-        IEnumerator action = decision.Result;
-        yield return action;
+        Action action = decision.Result;
+        // Finally, trigger that action?
     }
 }

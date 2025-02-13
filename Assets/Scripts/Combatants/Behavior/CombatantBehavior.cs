@@ -5,5 +5,5 @@ using UnityEngine;
 
 public abstract class CombatantBehavior : MonoBehaviour
 {
-    public abstract Task<IEnumerator> Decide();
+    public abstract Task<Action> Decide();
 }

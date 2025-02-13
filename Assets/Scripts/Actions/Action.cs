@@ -5,6 +5,7 @@ using UnityEngine;
 /*
 ANY action a player makes (Moving, Casting a spell, Teleporting, etc) is considered an Action
 */
+[RequireComponent(typeof(GridElement))]
 public abstract class Action : MonoBehaviour
 {
     [ContextMenu("Act")]

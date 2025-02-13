@@ -6,19 +6,19 @@ using UnityEngine.Tilemaps;
 public class GridElement : MonoBehaviour
 {
     public void OnValidate() {
-        if (GetGrid() == null)
+        if (GetBoard() == null)
         {
             Debug.LogError($"'{gameObject.name}' requires a parent with a Board component! Fix this before running the game.");
         }
     }
 
-    public Board GetGrid() {
+    public Board GetBoard() {
         return gameObject.GetComponentInParent<Board>();
     }
 
     private void OnDrawGizmosSelected()
     {
-        var board = GetGrid();
+        var board = GetBoard();
         board.GizmosDrawTile(board.FindTile(transform.position), Color.blue);
     }
 }
