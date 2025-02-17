@@ -8,12 +8,14 @@ UI cursor used to pick a tile. We'll have to extend this to be pretty configurab
 */
 public class TileSelector : MonoBehaviour
 {
-    public Board board;
-    public Vector2Int? selection;
+    public bool allowSelection;
+    private Board board;
+    public Vector2Int? selection {get; private set;}
     public Vector2Int position {get => board.FindTile(transform.position);}
-    public Func<Vector2Int, bool> selectionCriteria;
 
-    private void Awake() {
+    public void Setup(Board board) {
+        this.board = board;
+        allowSelection = false;
         selection = null;
     }
 
@@ -27,7 +29,7 @@ public class TileSelector : MonoBehaviour
 
         transform.position = worldPos;
         DisplaySelection();
-        if (Input.GetMouseButtonDown(0) && SelectionIsValid()) {
+        if (Input.GetMouseButtonDown(0) && allowSelection) {
             selection = position;
         }
     }
@@ -36,17 +38,10 @@ public class TileSelector : MonoBehaviour
         // Need to actually draw a square here
     }
 
-    private bool SelectionIsValid() {
-        if (selectionCriteria == null) {
-            return true;
-        }
-        return selectionCriteria(position);
-    }
-
     private void OnDrawGizmosSelected()
     {
-        Color validity = SelectionIsValid() ? Color.blue : Color.red;
-        board.GizmosDrawTile(position, validity);
+        // Color validity = allowSelection? Color.blue : Color.red;
+        // board.GizmosDrawTile(position, validity);
     }
 }
 /*

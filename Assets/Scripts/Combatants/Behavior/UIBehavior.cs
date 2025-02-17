@@ -15,7 +15,7 @@ public class UIBehavior : CombatantBehavior
     {
         BaseAction chosen = await PickAction();
         Debug.Log($"Chose action {chosen.GetType().Name}");
-        await Populate((dynamic)chosen);
+        await Prompt((dynamic)chosen);
         return chosen;
     }
 
@@ -37,19 +37,30 @@ public class UIBehavior : CombatantBehavior
     }
 
     // Tile selection UI
-    public async Task Populate(ChoiceAction<Vector2Int> chooseTileAction) {
+    public async Task Prompt(ChoiceAction<Vector2Int> chooseTileAction) {
         Board board = chooseTileAction.GetComponent<GridElement>().GetBoard();
         while (!chooseTileAction.IsValid()) {
-            Vector2Int selected = await UIGenerator.instance.SelectTile(board);
+            Vector2Int selected = await UIGenerator.instance.SelectTile(
+                board,
+                (Vector2Int choice) => {
+                    chooseTileAction.choice = choice;
+                    return chooseTileAction.IsValid();
+                }
+            );
             chooseTileAction.choice = selected;
         }
     }
 
     // Pathing UI
-    public async Task Populate(PathAction choosePathAction) {
+    public async Task Prompt(PathAction choosePathAction) {
         Board board = choosePathAction.GetComponent<GridElement>().GetBoard();
         while (!choosePathAction.IsValid()) {
-            Vector2Int selected = await UIGenerator.instance.SelectPath(board,
+            Vector2Int selected = await UIGenerator.instance.SelectPath(
+                board,
+                (Vector2Int choice) => {
+                    choosePathAction.choice = choice;
+                    return choosePathAction.IsValid();
+                },
                 (Vector2Int choice) => {
                     choosePathAction.choice = choice;
                     return choosePathAction.GetPath();

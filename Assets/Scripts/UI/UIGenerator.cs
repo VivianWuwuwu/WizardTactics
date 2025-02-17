@@ -13,8 +13,8 @@ IE,
 public class UIGenerator : MonoBehaviour
 {
     public static UIGenerator instance;
-
     public TileSelector cursor;
+    public PathDisplay pathPreview;
 
     void Awake() {
         instance = this;
@@ -35,47 +35,59 @@ public class UIGenerator : MonoBehaviour
 
         string prompt = string.Join(", ", choices.Select((choice, idx) => $"{choice} - ({keycodes[idx]})"));
         Debug.Log($"Choose: {prompt}");
+        Debug.Log($"Awaiting input...");
+
+        /*
         while (!keycodes.Any(k => Input.GetKeyDown(k))) {
             yield return null;
         }
         var chosen = keycodes.First(k => Input.GetKeyDown(k));
         tcs.SetResult(keycodes.ToList().IndexOf(chosen));
+        */
+
+        yield return null;
+        int forcedResult = 0;
+        tcs.SetResult(forcedResult);
+        Debug.Log($"You chose: {choices[forcedResult]}");
     }
 
+    public async Task<Vector2Int> SelectTile(Board b, Func<Vector2Int, bool> tileIsValid) {
+        cursor.Setup(b);
 
-    public async Task<Vector2Int> SelectTile(Board b) {
-        cursor.board = b;
-        cursor.selection = null;
         var tileSelection = new TaskCompletionSource<Vector2Int>();
         IEnumerator pollCursor()
         {
             cursor.gameObject.SetActive(true);
-            yield return new WaitUntil(() => cursor.selection.HasValue);
-            tileSelection.SetResult(cursor.selection.Value);
-            cursor.gameObject.SetActive(false);
+            while (!tileSelection.Task.IsCompleted) {
+                cursor.allowSelection = tileIsValid(cursor.position);
+                if (cursor.selection.HasValue) {
+                    tileSelection.SetResult(cursor.selection.Value);
+                    cursor.gameObject.SetActive(false);
+                }
+                yield return null;
+            }
         }
         StartCoroutine(pollCursor());
         return await tileSelection.Task;
     }
 
-    public async Task<Vector2Int> SelectPath(Board b, Func<Vector2Int, List<Vector2Int>> pathGenerator) {
-        cursor.board = b;
-        cursor.selection = null;
+    public async Task<Vector2Int> SelectPath(Board b, Func<Vector2Int, bool> choiceIsValid, Func<Vector2Int, List<Vector2Int>> pathGenerator) {
+        Debug.Log("Opening up Path selection UI");
+        cursor.Setup(b);
         var tileSelection = new TaskCompletionSource<Vector2Int>();
-
-        Func<Vector2Int, List<Vector2Int>> fastPathGen = Pathfinding.Memoize(pathGenerator);
-
         IEnumerator pollCursor()
         {
             cursor.gameObject.SetActive(true);
+            pathPreview.gameObject.SetActive(true);
             while (!tileSelection.Task.IsCompleted) {
-                List<Vector2Int> path = fastPathGen(cursor.position);
-                if (path != null) {
-                    // draw a path. Idk how yet...
-                    if (cursor.selection.HasValue) {
-                        tileSelection.SetResult(cursor.selection.Value);
-                        cursor.gameObject.SetActive(false);
-                    }
+                bool createdValidPath = choiceIsValid(cursor.position);
+                cursor.allowSelection = createdValidPath;
+                // pathPreview.isValid = createdValidPath;
+                pathPreview.Path = pathGenerator(cursor.position);
+                if (cursor.selection.HasValue) {
+                    tileSelection.SetResult(cursor.selection.Value);
+                    pathPreview.gameObject.SetActive(false);
+                    cursor.gameObject.SetActive(false);
                 }
                 yield return null;
             }

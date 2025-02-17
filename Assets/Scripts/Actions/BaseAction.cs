@@ -10,13 +10,23 @@ ANY action a player makes (Moving, Casting a spell, Teleporting, etc) is conside
 public abstract class BaseAction : MonoBehaviour
 {
     [ContextMenu("Act")]
-    public void Act() {
+    private void ActInInspector() {
         string reason;
         if (!IsValid(out reason)) {
             Debug.Log($"Cannot act - Reason: {reason}");
             return;
         }
-        PerformAction();
+        IEnumerator frames = PerformAction();
+        while (frames.MoveNext()); // evalute the full action
+    }
+
+    public IEnumerator Act() {
+        string reason;
+        if (!IsValid(out reason)) {
+            Debug.Log($"Cannot act - Reason: {reason}");
+            return null;
+        }
+        return PerformAction();
     }
 
     public abstract bool IsValid(out string reason);
