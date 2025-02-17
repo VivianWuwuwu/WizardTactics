@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public abstract class PathAction : ChoiceAction<Vector2Int?>
+public abstract class PathAction : ChoiceAction<Vector2Int>
 {
     public abstract bool IsPathable(Vector2Int tile);
 
@@ -11,10 +12,7 @@ public abstract class PathAction : ChoiceAction<Vector2Int?>
     }
 
     public List<Vector2Int> GetPath() {
-        if (!choice.HasValue) {
-            return null;
-        }
-        List<Vector2Int> path = Pathfinding.FindPath(GetComponent<GridElement>().GetPosition(), choice.Value, IsPathable);
+        List<Vector2Int> path = Pathfinding.FindPath(GetComponent<GridElement>().GetPosition(), choice, IsPathable);
         return path;
     }
 
@@ -34,19 +32,28 @@ public abstract class PathAction : ChoiceAction<Vector2Int?>
         return true;
     }
 
-    // For testing pathing in inspector
-    [SerializeField]
-    private Vector2Int inspectorChoice;
     private void OnDrawGizmosSelected()
     {
         Board board = GetComponent<GridElement>().GetBoard();
-        choice = inspectorChoice;
         List<Vector2Int> path = GetPath();
         if (path == null) {
-            board.GizmosDrawTile(inspectorChoice, Color.red);
+            board.GizmosDrawTile(choice, Color.red);
             return;
         }
         Color color = IsValid() ? Color.green : Color.red;
+
+        var destinations = path.Select(board.GetWorldPosition).ToList();
+        destinations.Insert(0, transform.position); // Add our source position
+        var pairs = destinations.Zip(destinations.Skip(1), (a, b) => (a, b)).ToList();
+        Gizmos.color = color;
+        for (int i = 0; i < pairs.Count; i++) {
+            var pair = pairs[i];
+            if (i == pairs.Count - 1) {
+                GizmoExtensions.DrawArrow(pair.a, pair.b);
+            } else {
+                Gizmos.DrawLine(pair.a, pair.b);
+            }
+        }
         path.ForEach(t => board.GizmosDrawTile(t, color));
     }
 }

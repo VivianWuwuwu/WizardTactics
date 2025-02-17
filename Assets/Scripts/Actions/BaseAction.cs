@@ -11,19 +11,17 @@ public abstract class BaseAction : MonoBehaviour
 {
     [ContextMenu("Act")]
     private void ActInInspector() {
-        string reason;
-        if (!IsValid(out reason)) {
-            Debug.Log($"Cannot act - Reason: {reason}");
+        IEnumerator action = Act();
+        if (action == null) {
             return;
         }
-        IEnumerator frames = PerformAction();
-        while (frames.MoveNext()); // evalute the full action
+        while (action.MoveNext()); // evalute the full action
     }
 
     public IEnumerator Act() {
         string reason;
         if (!IsValid(out reason)) {
-            Debug.Log($"Cannot act - Reason: {reason}");
+            Debug.Log($"Cannot act - {reason}");
             return null;
         }
         return PerformAction();

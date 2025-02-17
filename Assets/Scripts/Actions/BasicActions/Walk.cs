@@ -8,7 +8,7 @@ using UnityEngine;
 public class Walk : PathAction
 {
     public override int? GetRange() {
-        return 10; // TODO: Get this from the combatant instead
+        return 2; // TODO: Get this from the combatant instead
     }
 
     public override bool IsPathable(Vector2Int tile)
@@ -21,8 +21,11 @@ public class Walk : PathAction
     {
         var element = GetComponent<GridElement>();
         var board = element.GetBoard();
-        var destination = board.GetWorldPosition(GetPath().Last());
-        gameObject.transform.position = destination;
-        yield return null;
+        var destinations = GetPath().Select(board.GetWorldPosition).ToList();
+        foreach (Vector3 dest in destinations) {
+            gameObject.transform.position = dest;
+            yield return null;
+            // TODO -> Add smoothing between each move
+        }
     }
 }
