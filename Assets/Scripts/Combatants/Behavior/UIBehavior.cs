@@ -26,11 +26,12 @@ public class UIBehavior : CombatantBehavior
         return choices[idx];
     }
 
-    /*
-    We dispatch to most specific Populate method (via dynamic)
-    */
     public Task LookupUI(BaseAction action) {
-        return Prompt((dynamic)action); // We
+        return Prompt((dynamic)action);
+        /*
+        We use "dynamic" to dispatch to the most specific type possible
+        ex our priority for prompts is: Walk > PathAction > BaseActions
+        */
     }
     
     public Task Prompt(BaseAction action) {
