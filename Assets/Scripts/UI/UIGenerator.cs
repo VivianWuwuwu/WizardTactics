@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /*
@@ -71,26 +72,36 @@ public class UIGenerator : MonoBehaviour
         return await tileSelection.Task;
     }
 
-    public async Task<Vector2Int> SelectPath(Board b, Func<Vector2Int, bool> choiceIsValid, Func<Vector2Int, List<Vector2Int>> pathGenerator) {
+    public async Task<List<Vector2Int>> SelectPath(Board b, Vector2Int root, Func<List<Vector2Int>, bool> choiceIsValid) {
         Debug.Log("Opening up Path selection UI");
         cursor.Setup(b);
-        var tileSelection = new TaskCompletionSource<Vector2Int>();
+        var tileSelection = new TaskCompletionSource<List<Vector2Int>>();
         IEnumerator pollCursor()
         {
             cursor.gameObject.SetActive(true);
             pathPreview.gameObject.SetActive(true);
+            List<Vector2Int> path = new List<Vector2Int>{root};
+
             while (!tileSelection.Task.IsCompleted) {
-                bool createdValidPath = choiceIsValid(cursor.position);
-                cursor.allowSelection = createdValidPath;
-                // pathPreview.isValid = createdValidPath;
-                pathPreview.Path = pathGenerator(cursor.position);
+                if (!Input.GetMouseButtonDown(0))
+                {
+                    path = new List<Vector2Int>{root};
+                    yield return null;
+                    continue;
+                }
+                if (!Pathfinding.IsPath(path.Append(cursor.position).ToList())) {
+                    yield return null;
+                    continue;
+                }
+                path.Add(cursor.position);
                 if (cursor.selection.HasValue) {
-                    tileSelection.SetResult(cursor.selection.Value);
+                    tileSelection.SetResult(path);
                     pathPreview.gameObject.SetActive(false);
                     cursor.gameObject.SetActive(false);
                 }
                 yield return null;
             }
+            // ^ TODO! Fix this!
         }
         StartCoroutine(pollCursor());
         return await tileSelection.Task;

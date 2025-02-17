@@ -23,4 +23,9 @@ public abstract class ChoiceAction<SelectionType> : BaseAction
         }
         return true;
     }
+
+    public bool IsValid(SelectionType choice) {
+        this.choice = choice;
+        return IsValid();
+    }
 }

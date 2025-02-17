@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 using UnityEngine;
 
 /*
@@ -40,32 +41,17 @@ public class UIBehavior : CombatantBehavior
     public async Task Prompt(ChoiceAction<Vector2Int> chooseTileAction) {
         Board board = chooseTileAction.GetComponent<GridElement>().GetBoard();
         while (!chooseTileAction.IsValid()) {
-            Vector2Int selected = await UIGenerator.instance.SelectTile(
-                board,
-                (Vector2Int choice) => {
-                    chooseTileAction.choice = choice;
-                    return chooseTileAction.IsValid();
-                }
-            );
+            Vector2Int selected = await UIGenerator.instance.SelectTile(board, chooseTileAction.IsValid);
             chooseTileAction.choice = selected;
         }
     }
 
     // Pathing UI
     public async Task Prompt(PathAction choosePathAction) {
+        GridElement element = choosePathAction.GetComponent<GridElement>(); 
         Board board = choosePathAction.GetComponent<GridElement>().GetBoard();
         while (!choosePathAction.IsValid()) {
-            Vector2Int selected = await UIGenerator.instance.SelectPath(
-                board,
-                (Vector2Int choice) => {
-                    choosePathAction.choice = choice;
-                    return choosePathAction.IsValid();
-                },
-                (Vector2Int choice) => {
-                    choosePathAction.choice = choice;
-                    return choosePathAction.GetPath();
-                }
-            );
+            List<Vector2Int> selected = await UIGenerator.instance.SelectPath(board, element.GetPosition(), choosePathAction.IsValid);
             choosePathAction.choice = selected;
         }
     }

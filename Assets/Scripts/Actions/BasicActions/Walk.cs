@@ -21,7 +21,7 @@ public class Walk : PathAction
     {
         var element = GetComponent<GridElement>();
         var board = element.GetBoard();
-        var destinations = GetPath().Select(board.GetWorldPosition).ToList();
+        var destinations = choice.Select(board.GetWorldPosition).ToList();
         foreach (Vector3 dest in destinations) {
             gameObject.transform.position = dest;
             yield return null;

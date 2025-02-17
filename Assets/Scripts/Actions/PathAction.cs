@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class PathAction : ChoiceAction<Vector2Int>
+/*
+TODO -> Vivvy got in her own head on this one. Just make this accept a List<Vector2Int> and verify path is solid. No need to have pathfinding
+*/
+public abstract class PathAction : ChoiceAction<List<Vector2Int>>
 {
     public abstract bool IsPathable(Vector2Int tile);
 
@@ -11,21 +14,21 @@ public abstract class PathAction : ChoiceAction<Vector2Int>
         return null; // By default range is infinite
     }
 
-    public List<Vector2Int> GetPath() {
-        List<Vector2Int> path = Pathfinding.FindPath(GetComponent<GridElement>().GetPosition(), choice, IsPathable);
-        return path;
-    }
-
     public override bool IsValid(out string reason) {
         if (!base.IsValid(out reason)) {
             return false;
         }
-        List<Vector2Int> path = GetPath();
-        if (path == null) {
-            reason = "Could not find valid path";
+        if (choice == null) {
+            reason = "No path given";
             return false;
         }
-        if (GetRange().HasValue && path.Count > GetRange().Value) {
+        List<Vector2Int> fullPath = choice.Prepend(GetComponent<GridElement>().GetPosition()).ToList();
+        if (!Pathfinding.IsPath(fullPath)) {
+            return false;
+        }
+
+        Vector2Int pos = GetComponent<GridElement>().GetPosition();
+        if (GetRange().HasValue && choice.Prepend(pos).Count() > GetRange().Value) {
             reason = "Path out of allowed range";
             return false;
         }
@@ -35,9 +38,12 @@ public abstract class PathAction : ChoiceAction<Vector2Int>
     private void OnDrawGizmosSelected()
     {
         Board board = GetComponent<GridElement>().GetBoard();
-        List<Vector2Int> path = GetPath();
+        List<Vector2Int> path = choice;
         if (path == null) {
-            board.GizmosDrawTile(choice, Color.red);
+            return;
+        }
+        List<Vector2Int> fullPath = choice.Prepend(GetComponent<GridElement>().GetPosition()).ToList();
+        if (!Pathfinding.IsPath(fullPath)) {
             return;
         }
         Color color = IsValid() ? Color.green : Color.red;
