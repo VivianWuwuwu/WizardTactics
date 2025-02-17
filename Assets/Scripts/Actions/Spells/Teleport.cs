@@ -15,20 +15,16 @@ public class Teleport : ChoiceAction<Vector2Int>
         if (choice == null) {
             return;
         }
-        Color color = ValidateParams(choice) ? Color.green : Color.red;
+        Color color = IsValid() ? Color.green : Color.red;
         element.GetBoard().GizmosDrawTile(choice, color);
     }
 
-    public override bool ValidateParams(Vector2Int given)
-    {
-        return true; // Sure ya lol
-    }
-
-    protected override void PerformAction()
+    protected override IEnumerator PerformAction()
     {
         var element = GetComponent<GridElement>();
         var board = element.GetBoard();
         var destination = board.GetWorldPosition(choice);
         gameObject.transform.position = destination;
+        yield return null;
     }
 }

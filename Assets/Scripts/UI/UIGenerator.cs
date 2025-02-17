@@ -57,4 +57,16 @@ public class UIGenerator : MonoBehaviour
         tcs.SetResult(cursor.selection.Value);
         cursor.gameObject.SetActive(false);
     }
+
+
+    // Alt implementation.
+    public IEnumerator<Vector2> Test() {
+        yield return Vector2Int.zero;
+    }    
+
+
+
+    /*
+    We should create a flow for pathfinding as well. Probably should setup a builder eventually
+    */
 }

@@ -21,10 +21,10 @@ public class Combatant : MonoBehaviour
 
     public IEnumerator Act() {
         Debug.Log("Deciding");
-        Task<Action> decision = ((dynamic)GetComponent<CombatantBehavior>()).Decide();
+        Task<BaseAction> decision = ((dynamic)GetComponent<CombatantBehavior>()).Decide();
         yield return new WaitUntil(() => decision.IsCompleted);
         Debug.Log("Decided...");
-        Action action = decision.Result;
+        BaseAction action = decision.Result;
 
         // Finally, trigger that action?
         action.Act();

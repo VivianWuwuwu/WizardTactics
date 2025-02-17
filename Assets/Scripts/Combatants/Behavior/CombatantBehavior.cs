@@ -5,6 +5,6 @@ using UnityEngine;
 
 public abstract class CombatantBehavior : MonoBehaviour
 {
-    public abstract Task<Action> Decide();
-    public abstract Task Populate(Action a);
+    public abstract Task<BaseAction> Decide();
+    public abstract Task Populate(BaseAction a);
 }

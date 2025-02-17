@@ -6,26 +6,21 @@ using UnityEngine;
 
 /*
 A "choice" action has a set of parameters that need to be decided for this action to be performed
+
+We'll be able to overload different actions to give more feedback on how they work ig
+-> Should the action 
 */
 
 // Uhh I guess I can have this expose a builder pattern for the choice?
-public abstract class ChoiceAction<Params> : Action 
+public abstract class ChoiceAction<SelectionType> : BaseAction 
 {
-    protected Params choice;
-
-    public virtual void Build(Params given) {
-        choice = given;
-    }
-
-    public abstract bool ValidateParams(Params given);
-
-    public override (bool, string) CanAct() {
+    public SelectionType choice;
+    public override bool IsValid(out string reason) {
+        reason = null;
         if (choice == null) {
-            return (false, "No parameters selected");
+            reason = "No parameters selected";
+            return false;
         }
-        if (!ValidateParams(choice)) {
-            return (false, "Invalid params"); // TODO - Define this reasoning better
-        }
-        return (true, null);
+        return true;
     }
 }

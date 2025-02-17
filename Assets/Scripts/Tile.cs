@@ -9,4 +9,8 @@ public class Tile
     public Tile(ISet<GridElement> elements) {
         this.elements = elements;
     }
+
+    public bool Occupied() {
+        return false;
+    }
 }

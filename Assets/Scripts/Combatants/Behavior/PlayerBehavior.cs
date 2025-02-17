@@ -11,16 +11,16 @@ Player Behavior is responsible for creating UI to manage all decisions a combata
 */
 public class PlayerBehavior : CombatantBehavior
 {
-    public async override Task<Action> Decide()
+    public async override Task<BaseAction> Decide()
     {
-        Action chosen = await DecideAction();
+        BaseAction chosen = await DecideAction();
         Debug.Log($"Chose action {chosen.GetType().Name}");
         await Populate((dynamic)chosen);
         return chosen;
     }
 
-    private async Task<Action> DecideAction() {
-        Action[] choices = GetComponents<Action>();
+    private async Task<BaseAction> DecideAction() {
+        BaseAction[] choices = GetComponents<BaseAction>();
         int idx = await UIGenerator.instance.SelectTextChoice(choices.Select(a => a.GetType().Name).ToList());
         return choices[idx];
     }
@@ -28,7 +28,7 @@ public class PlayerBehavior : CombatantBehavior
     /*
     We dispatch to most specific Populate method (via dynamic)
     */
-    public override Task Populate(Action action) {
+    public override Task Populate(BaseAction action) {
         return Task.CompletedTask; // No-Op
     }
 

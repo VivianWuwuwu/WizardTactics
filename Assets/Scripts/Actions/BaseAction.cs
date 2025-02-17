@@ -7,18 +7,19 @@ using UnityEngine;
 ANY action a player makes (Moving, Casting a spell, Teleporting, etc) is considered an Action
 */
 [RequireComponent(typeof(GridElement))]
-public abstract class Action : MonoBehaviour
+public abstract class BaseAction : MonoBehaviour
 {
     [ContextMenu("Act")]
     public void Act() {
-        var (canAct, why) = CanAct();
-        if (!canAct) {
-            Debug.Log($"Cannot act - Reason: {why}");
+        string reason;
+        if (!IsValid(out reason)) {
+            Debug.Log($"Cannot act - Reason: {reason}");
             return;
         }
         PerformAction();
     }
 
-    public abstract (bool, string) CanAct();
-    protected abstract void PerformAction();
+    public abstract bool IsValid(out string reason);
+    public bool IsValid() => IsValid(out _); // Overload to use IsValid without debug message
+    protected abstract IEnumerator PerformAction();
 }
