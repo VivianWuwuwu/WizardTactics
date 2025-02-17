@@ -24,6 +24,7 @@ public abstract class PathAction : ChoiceAction<List<Vector2Int>>
         }
         List<Vector2Int> fullPath = choice.Prepend(GetComponent<GridElement>().GetPosition()).ToList();
         if (!Pathfinding.IsPath(fullPath)) {
+            reason = "Not a contiguous path";
             return false;
         }
 

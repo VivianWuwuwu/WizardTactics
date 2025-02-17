@@ -16,7 +16,7 @@ public class UIBehavior : CombatantBehavior
     {
         BaseAction chosen = await PickAction();
         Debug.Log($"Chose action {chosen.GetType().Name}");
-        await Prompt((dynamic)chosen);
+        await LookupUI(chosen);
         return chosen;
     }
 
