@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,28 +46,41 @@ public class UIGenerator : MonoBehaviour
     public async Task<Vector2Int> SelectTile(Board b) {
         cursor.board = b;
         cursor.selection = null;
-        var tcs = new TaskCompletionSource<Vector2Int>();
-        StartCoroutine(WaitForTileSelection(tcs));
-        return await tcs.Task;
+        var tileSelection = new TaskCompletionSource<Vector2Int>();
+        IEnumerator pollCursor()
+        {
+            cursor.gameObject.SetActive(true);
+            yield return new WaitUntil(() => cursor.selection.HasValue);
+            tileSelection.SetResult(cursor.selection.Value);
+            cursor.gameObject.SetActive(false);
+        }
+        StartCoroutine(pollCursor());
+        return await tileSelection.Task;
     }
 
-    private IEnumerator WaitForTileSelection(TaskCompletionSource<Vector2Int> tcs)
-    {
-        cursor.gameObject.SetActive(true);
-        yield return new WaitUntil(() => cursor.selection.HasValue);
-        tcs.SetResult(cursor.selection.Value);
-        cursor.gameObject.SetActive(false);
+    public async Task<Vector2Int> SelectPath(Board b, Func<Vector2Int, List<Vector2Int>> pathGenerator) {
+        cursor.board = b;
+        cursor.selection = null;
+        var tileSelection = new TaskCompletionSource<Vector2Int>();
+
+        Func<Vector2Int, List<Vector2Int>> fastPathGen = Pathfinding.Memoize(pathGenerator);
+
+        IEnumerator pollCursor()
+        {
+            cursor.gameObject.SetActive(true);
+            while (!tileSelection.Task.IsCompleted) {
+                List<Vector2Int> path = fastPathGen(cursor.position);
+                if (path != null) {
+                    // draw a path. Idk how yet...
+                    if (cursor.selection.HasValue) {
+                        tileSelection.SetResult(cursor.selection.Value);
+                        cursor.gameObject.SetActive(false);
+                    }
+                }
+                yield return null;
+            }
+        }
+        StartCoroutine(pollCursor());
+        return await tileSelection.Task;
     }
-
-
-    // Alt implementation.
-    public IEnumerator<Vector2> Test() {
-        yield return Vector2Int.zero;
-    }    
-
-
-
-    /*
-    We should create a flow for pathfinding as well. Probably should setup a builder eventually
-    */
 }

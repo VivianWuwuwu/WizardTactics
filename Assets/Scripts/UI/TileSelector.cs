@@ -10,7 +10,7 @@ public class TileSelector : MonoBehaviour
 {
     public Board board;
     public Vector2Int? selection;
-    private Vector2Int curr {get => board.FindTile(transform.position);}
+    public Vector2Int position {get => board.FindTile(transform.position);}
     public Func<Vector2Int, bool> selectionCriteria;
 
     private void Awake() {
@@ -28,7 +28,7 @@ public class TileSelector : MonoBehaviour
         transform.position = worldPos;
         DisplaySelection();
         if (Input.GetMouseButtonDown(0) && SelectionIsValid()) {
-            selection = curr;
+            selection = position;
         }
     }
 
@@ -40,13 +40,13 @@ public class TileSelector : MonoBehaviour
         if (selectionCriteria == null) {
             return true;
         }
-        return selectionCriteria(curr);
+        return selectionCriteria(position);
     }
 
     private void OnDrawGizmosSelected()
     {
         Color validity = SelectionIsValid() ? Color.blue : Color.red;
-        board.GizmosDrawTile(curr, validity);
+        board.GizmosDrawTile(position, validity);
     }
 }
 /*

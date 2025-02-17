@@ -42,4 +42,18 @@ public static class Pathfinding
         }
         return null; // Return null if no path is found
     }
+
+    // TODO -> Move this to a more appropriate file
+    public static Func<T, V> Memoize<T, V>(Func<T, V> func) {
+        Dictionary<T, V> cache = new Dictionary<T, V>();
+        return arg => {
+            if (cache.ContainsKey(arg)) {
+                return cache[arg];
+            } else {
+                V result = func(arg);
+                cache[arg] = result;
+                return result;
+            }
+        };
+    }
 }
