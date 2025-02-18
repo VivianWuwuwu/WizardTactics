@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Tile
 {
-    private ISet<GridElement> elements;
+    public ISet<GridElement> elements;
 
     public Tile(ISet<GridElement> elements) {
         this.elements = elements;
