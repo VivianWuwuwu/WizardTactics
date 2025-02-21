@@ -10,7 +10,7 @@ Are these scriptable objects? Idk??
 
 [RequireComponent(typeof(GridElement))]
 [RequireComponent(typeof(CombatantBehavior))]
-public class Combatant : Actor
+public class Combatant : MonoBehaviour, Actor
 {
     public int speed; // uhhh yeah sure
 
@@ -24,7 +24,7 @@ public class Combatant : Actor
         yield return null;
     }
 
-    public override IEnumerator Act() {
+    public IEnumerator Act() {
         yield return Refresh();
         Debug.Log("Deciding");
         Task<BaseAbility> decision = ((dynamic)GetComponent<CombatantBehavior>()).Decide();
