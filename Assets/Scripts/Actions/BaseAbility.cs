@@ -7,7 +7,7 @@ using UnityEngine;
 ANY action a player makes (Moving, Casting a spell, Teleporting, etc) is considered an Action
 */
 [RequireComponent(typeof(GridElement))]
-public abstract class BaseAction : MonoBehaviour
+public abstract class BaseAbility : MonoBehaviour
 {
     [ContextMenu("Act")]
     private void ActInInspector() {

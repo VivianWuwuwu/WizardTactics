@@ -5,7 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Walk : PathAction
+public class Walk : PathAbility
 {
     public override int? GetRange() {
         return 2; // TODO: Get this from the combatant instead

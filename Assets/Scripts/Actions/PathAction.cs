@@ -6,7 +6,7 @@ using UnityEngine;
 /*
 TODO -> Vivvy got in her own head on this one. Just make this accept a List<Vector2Int> and verify path is solid. No need to have pathfinding
 */
-public abstract class PathAction : ChoiceAction<List<Vector2Int>>
+public abstract class PathAbility : ChoiceAbility<List<Vector2Int>>
 {
     public abstract bool IsPathable(Vector2Int tile);
 

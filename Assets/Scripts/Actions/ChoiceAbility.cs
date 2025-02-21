@@ -12,7 +12,7 @@ We'll be able to overload different actions to give more feedback on how they wo
 */
 
 // Uhh I guess I can have this expose a builder pattern for the choice?
-public abstract class ChoiceAction<SelectionType> : BaseAction 
+public abstract class ChoiceAbility<SelectionType> : BaseAbility 
 {
     public SelectionType choice;
     public override bool IsValid(out string reason) {

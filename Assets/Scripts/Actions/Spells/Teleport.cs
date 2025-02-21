@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Teleport : ChoiceAction<Vector2Int>
+public class Teleport : ChoiceAbility<Vector2Int>
 {
     [SerializeField]
     private Vector2Int inspectorChoice;

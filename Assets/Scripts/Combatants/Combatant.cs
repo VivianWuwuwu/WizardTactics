@@ -27,10 +27,10 @@ public class Combatant : Actor
     public override IEnumerator Act() {
         yield return Refresh();
         Debug.Log("Deciding");
-        Task<BaseAction> decision = ((dynamic)GetComponent<CombatantBehavior>()).Decide();
+        Task<BaseAbility> decision = ((dynamic)GetComponent<CombatantBehavior>()).Decide();
         yield return new WaitUntil(() => decision.IsCompleted);
         Debug.Log("Decided...");
-        BaseAction action = decision.Result;
+        BaseAbility action = decision.Result;
         yield return action.Act();
     }
 
