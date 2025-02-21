@@ -19,7 +19,7 @@ public class Combatant : Actor
         StartCoroutine(Act());
     }
 
-    private IEnumerator Refresh() {
+    public IEnumerator Refresh() {
         // TODO -> We use this to adjust cooldowns, etc
         yield return null;
     }
@@ -32,5 +32,9 @@ public class Combatant : Actor
         Debug.Log("Decided...");
         BaseAction action = decision.Result;
         yield return action.Act();
+    }
+
+    public DamageInfo ApplyAttack(DamageInfo baseDamage) {
+        return baseDamage;
     }
 }
