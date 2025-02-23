@@ -37,7 +37,7 @@ public class BoundedInt
 
     public int Value
     {
-        get => Mathf.Clamp(value, min, max);
+        get => value;
         set => this.value = Mathf.Clamp(value, min, max);
     }
 }
