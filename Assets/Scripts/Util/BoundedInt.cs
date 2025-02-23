@@ -39,6 +39,22 @@ public class CappedInt
         get => value;
         set => this.value = Mathf.Clamp(Value, 0, max);
     }
+
+    // Overload the + operator
+    public static CappedInt operator +(CappedInt a, int b)
+    {
+        CappedInt result = new CappedInt(a);
+        result.Value += b; // This will use the existing Value property
+        return result;
+    }
+
+    // Overload the - operator
+    public static CappedInt operator -(CappedInt a, int b)
+    {
+        CappedInt result = new CappedInt(a);
+        result.Value -= b; // This will use the existing Value property
+        return result;
+    }
 }
 
 [System.Serializable]

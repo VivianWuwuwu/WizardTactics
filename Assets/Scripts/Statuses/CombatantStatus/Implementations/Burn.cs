@@ -12,7 +12,7 @@ public class Burn : CombatantStatus, Actor
     }
 
     public override IEnumerator Act() {
-        // Damage parent?
+        Parent.stats.health -= 2;
         yield return null;
     }
 }
