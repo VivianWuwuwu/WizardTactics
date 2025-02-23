@@ -8,9 +8,9 @@ public class Soul : CombatantStatus
     public int stack = 1;
 
     public override void Combine() {
-        foreach (Soul b in parent.GetComponents<Soul>().Where(c => c != this)) {
+        foreach (Soul b in Parent.GetComponentsInChildren<Soul>().Where(c => c != this)) {
             stack += b.stack;
-            Destroy(b);
+            Destroy(b.gameObject);
         }
     }
 

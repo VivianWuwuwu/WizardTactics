@@ -6,9 +6,8 @@ using UnityEngine;
 public class Burn : CombatantStatus, Actor
 {
     public override void Combine() {
-        foreach (Burn b in parent.GetComponents<Burn>().Where(c => c != this)) {
-            Destroy(b);
-            Debug.Log("Delete other instances");
+        foreach (Burn b in Parent.GetComponentsInChildren<Burn>().Where(c => c != this)) {
+            Destroy(b.gameObject);
         }
     }
 

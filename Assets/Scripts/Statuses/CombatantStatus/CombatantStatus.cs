@@ -5,7 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(Combatant))]
 public abstract class CombatantStatus : MonoBehaviour
 {
-    public Combatant parent {get => GetComponent<Combatant>();}
+    public Combatant Parent {get => transform.parent?.GetComponent<Combatant>();}
+    public void OnValidate() {
+        if (Parent == null)
+        {
+            Debug.LogError($"'{gameObject.name}' requires a parent Combatant! Fix this before running the game.");
+        }
+    }
+
     public virtual void Combine() {
         return;
     }
