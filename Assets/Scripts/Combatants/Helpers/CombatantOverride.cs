@@ -7,6 +7,8 @@ using System;
 /*
 Probably will be used by statuses to modify player stats. Just an idea that is reliant on underlying Combatant methods changing
 */
+
+/*
 public class CombatantOverride
 {
     public static CombatantOverrideBuilder FromCombatant(Combatant baseCombatant)
@@ -59,3 +61,4 @@ public class CombatantOverride
         public CombatantOverride Build() => combatantOverride;
     }
 }
+*/

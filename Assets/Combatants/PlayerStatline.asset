@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 878559d05bfffcb4da77a18c1d640441, type: 3}
-  m_Name: New Default Stats
+  m_Name: PlayerStatline
   m_EditorClassIdentifier: 
   statline:
     ap:

@@ -12,7 +12,8 @@ Are these scriptable objects? Idk??
 [RequireComponent(typeof(CombatantBehavior))]
 public class Combatant : MonoBehaviour, Actor
 {
-    public DefaultStats defaultStats;
+    [SerializeField]
+    private DefaultStats defaultStats;
     public CombatantStats stats;
 
     public void Awake() {
@@ -40,11 +41,6 @@ public class Combatant : MonoBehaviour, Actor
         BaseAbility action = decision.Result;
         yield return action.Act();
     }
-
-    public DamageInfo ApplyAttack(DamageInfo baseDamage) {
-        return baseDamage;
-    }
-
 
     public void OnValidate() {
         if (defaultStats != null) {
