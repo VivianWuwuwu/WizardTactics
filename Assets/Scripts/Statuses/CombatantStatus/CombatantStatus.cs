@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Combatant))]
-public abstract class CombatantStatus : MonoBehaviour, Actor
+public abstract class CombatantStatus : MonoBehaviour
 {
     public Combatant parent {get => GetComponent<Combatant>();}
     public virtual void Combine() {
