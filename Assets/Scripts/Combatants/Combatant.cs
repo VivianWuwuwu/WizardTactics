@@ -12,6 +12,8 @@ Are these scriptable objects? Idk??
 [RequireComponent(typeof(CombatantBehavior))]
 public class Combatant : MonoBehaviour, Actor
 {
+    public BoundedInt ap;
+
     public int speed; // uhhh yeah sure
 
     [ContextMenu("Perform turn")]
@@ -38,3 +40,4 @@ public class Combatant : MonoBehaviour, Actor
         return baseDamage;
     }
 }
+

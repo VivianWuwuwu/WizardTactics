@@ -23,11 +23,3 @@ public abstract class CombatantStatus : MonoBehaviour
 
     public abstract IEnumerator Act();
 }
-
-public static class CombatantStatusHelpers {
-}
-
-/*
-Define a "Combine" for statuses. Trigger it on Awake.
-Soul stacks just combine their numbers
-*/
