@@ -313,7 +313,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2038317875}
+  - {fileID: 1632007398}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -643,11 +643,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d0d9d6cddad9724ba4c9ee412310e01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ap:
-    min: 4
-    max: 5
-    value: 5
-  speed: 0
+  defaults: {fileID: 0}
+  stats:
+    ap:
+      min: 0
+      max: 0
+      value: 0
+    health:
+      min: 0
+      max: 0
+      value: 0
+    movement: 0
+    range: 0
+    level: 0
+    power: 0
+    defense: 0
+    utility: 0
+    resilience: 0
 --- !u!114 &838952718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -832,7 +844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allowSelection: 0
---- !u!21 &2038317875
+--- !u!21 &1632007398
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0

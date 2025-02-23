@@ -12,9 +12,14 @@ Are these scriptable objects? Idk??
 [RequireComponent(typeof(CombatantBehavior))]
 public class Combatant : MonoBehaviour, Actor
 {
-    public BoundedInt ap;
+    public DefaultStats defaultStats;
+    public CombatantStats stats;
 
-    public int speed; // uhhh yeah sure
+    public void Awake() {
+        if (defaultStats != null) {
+            stats = defaultStats.statline.Copy();
+        }
+    }
 
     [ContextMenu("Perform turn")]
     private void TestTurn() {
@@ -38,6 +43,13 @@ public class Combatant : MonoBehaviour, Actor
 
     public DamageInfo ApplyAttack(DamageInfo baseDamage) {
         return baseDamage;
+    }
+
+
+    public void OnValidate() {
+        if (defaultStats != null) {
+            stats = defaultStats.statline.Copy();
+        }
     }
 }
 

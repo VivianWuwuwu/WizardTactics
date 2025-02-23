@@ -6,15 +6,46 @@ using UnityEditor.UIElements;
 using UnityEditor;
 using UnityEngine.UIElements;
 
+// This is just a Bounded Int, but bound from [0 -> N]
 [System.Serializable]
-public class BoundedInt
+public class CappedInt
 {
-    [SerializeField] private int min;
-    [SerializeField] private int max;
-    [SerializeField] private int value;
+    [SerializeField] protected int max;
+    [SerializeField] protected int value;
 
-    public int Min
+    public CappedInt(CappedInt original)
     {
+        (max, value) = (original.max, original.value);
+    }
+
+    public virtual int Min {
+        get => 0;
+        set {} // No-Op
+    }
+
+    public int Max
+    {
+        get => max;
+        set
+        {
+            max = value;
+            if (max < 0) max = 0;
+            Value = Mathf.Clamp(Value, 0, max);
+        }
+    }
+
+    public int Value
+    {
+        get => value;
+        set => this.value = Mathf.Clamp(Value, 0, max);
+    }
+}
+
+[System.Serializable]
+public class BoundedInt : CappedInt
+{
+    [SerializeField] protected int min;
+    public override int Min {
         get => min;
         set
         {
@@ -24,21 +55,55 @@ public class BoundedInt
         }
     }
 
-    public int Max
+    public BoundedInt(BoundedInt original) : base(original)
     {
-        get => max;
-        set
+        min = original.min;
+    }
+}
+
+// Plus custom property drawers for Range[] sliders
+[CustomPropertyDrawer(typeof(CappedInt))]
+public class CappedIntDrawer : PropertyDrawer
+{
+    private bool isExpanded = true;
+    
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        EditorGUI.BeginProperty(position, label, property);
+
+        SerializedProperty maxProp = property.FindPropertyRelative("max");
+        SerializedProperty valueProp = property.FindPropertyRelative("value");
+
+        float lineHeight = EditorGUIUtility.singleLineHeight;
+        float spacing = EditorGUIUtility.standardVerticalSpacing;
+        Rect foldoutRect = new Rect(position.x, position.y, position.width, lineHeight);
+        isExpanded = EditorGUI.Foldout(foldoutRect, isExpanded, label);
+
+        if (isExpanded)
         {
-            max = value;
-            if (max < min) min = max;
-            Value = Mathf.Clamp(Value, min, max);
+            Rect boxRect = new Rect(position.x, position.y + lineHeight, position.width, 2 * (lineHeight + spacing));
+            GUI.Box(boxRect, "", EditorStyles.helpBox);
+
+            Rect maxRect = new Rect(position.x + 5, position.y + 1 * (lineHeight + spacing), position.width - 10, lineHeight);
+            Rect valueRect = new Rect(position.x + 5, position.y + 2 * (lineHeight + spacing), position.width - 10, lineHeight);
+
+            maxProp.intValue = EditorGUI.IntField(maxRect, "Max", maxProp.intValue);
+            if (maxProp.intValue < 0) maxProp.intValue = 0;
+
+            valueProp.intValue = EditorGUI.IntSlider(valueRect, "Value", Mathf.Clamp(valueProp.intValue, 0, maxProp.intValue), 0, maxProp.intValue);
         }
+        EditorGUI.EndProperty();
     }
 
-    public int Value
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        get => value;
-        set => this.value = Mathf.Clamp(value, min, max);
+        if (!isExpanded)
+        {
+            return EditorGUIUtility.singleLineHeight;
+        }
+        float lineHeight = EditorGUIUtility.singleLineHeight;
+        float spacing = EditorGUIUtility.standardVerticalSpacing;
+        return 1.75f * (lineHeight + 1) * spacing;
     }
 }
 
