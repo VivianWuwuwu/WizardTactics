@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-/*
-Moves ->
-Are these scriptable objects? Idk??
-*/
+public interface ICombatant : Actor {
+    public CombatantStats Stats();
+    public IEnumerator Refresh();
+}
 
 [RequireComponent(typeof(GridElement))]
 [RequireComponent(typeof(CombatantBehavior))]
-public class Combatant : MonoBehaviour, Actor
+public class Combatant : MonoBehaviour, ICombatant
 {
     [SerializeField]
     private DefaultStats defaultStats;
-    public CombatantStats stats;
+    private CombatantStats stats;
 
     public void Awake() {
         if (defaultStats != null) {
@@ -22,10 +22,7 @@ public class Combatant : MonoBehaviour, Actor
         }
     }
 
-    [ContextMenu("Perform turn")]
-    private void TestTurn() {
-        StartCoroutine(Act());
-    }
+    public CombatantStats Stats() => stats;
 
     public IEnumerator Refresh() {
         // TODO -> We use this to adjust cooldowns, etc
@@ -40,6 +37,11 @@ public class Combatant : MonoBehaviour, Actor
         Debug.Log("Decided...");
         BaseAbility action = decision.Result;
         yield return action.Act();
+    }
+
+    [ContextMenu("Perform turn")]
+    private void TestTurn() {
+        StartCoroutine(Act());
     }
 
     public void OnValidate() {
