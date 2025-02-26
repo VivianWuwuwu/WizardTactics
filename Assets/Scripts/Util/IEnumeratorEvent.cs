@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 /*
 An "IEnumeratorEvent" is effectively an Event, but with IEnumerator subscribers rather than functions
@@ -35,61 +36,64 @@ public class IEnumeratorEvent
     {
         public MonoBehaviour owner;
         public Func<IEnumerator> coroutineFunc;
+        public readonly int priority;
 
-        public Subscriber(MonoBehaviour owner, Func<IEnumerator> coroutineFunc)
+        public Subscriber(MonoBehaviour owner, Func<IEnumerator> coroutineFunc, int priority)
         {
             this.owner = owner;
             this.coroutineFunc = coroutineFunc;
+            this.priority = priority;
         }
 
         public bool IsValid() => owner != null && owner.isActiveAndEnabled;
     }
 
-    public List<Subscriber> subscriberList = new();
+    private List<Subscriber> subscriberList = new();
 
-    public void Subscribe(Func<IEnumerator> coroutineFunc, MonoBehaviour owner)
+    public void Subscribe(Func<IEnumerator> coroutineFunc, MonoBehaviour owner, int priority = 0)
     {
         if (owner == null || coroutineFunc == null) return;
 
-        var subscriber = new Subscriber(owner, coroutineFunc);
+        var subscriber = new Subscriber(owner, coroutineFunc, priority);
         subscriberList.Add(subscriber);
     }
 
-    /*
+    public void Unsubscribe(Func<IEnumerator> coroutineFunc)
+    {
+        subscriberList.RemoveAll(p => p.coroutineFunc == coroutineFunc);
+    }
+
     public void Unsubscribe(MonoBehaviour owner)
     {
-        if (owner == null) return;
-
-        subscriberList.RemoveAll(sub => sub == owner);
-        subscriberInfo.RemoveAll(info => info.StartsWith(owner.gameObject.name));
+        subscriberList.RemoveAll(p => p.owner == owner);
     }
-    */
 
-    /*
-    public void Invoke(MonoBehaviour invoker)
+    public List<Subscriber> GetSubscribers() {
+        return subscriberList.OrderByDescending(s => s.priority).ToList();
+    }
+
+    public IEnumerator Invoke()
     {
-        for (int i = subscriberList.Count - 1; i >= 0; i--)
-        {
-            var sub = subscriberList[i];
+        var ordered = GetSubscribers();
+        while (ordered.Any()) {
+            Subscriber curr = ordered.First();
+            ordered.RemoveAt(0);
 
-            if (!sub.IsValid())
-            {
-                subscriberInfo.Remove($"{sub.gameObject.name} → {sub.methodName}");
-                subscriberList.RemoveAt(i);
+            if (!curr.IsValid()) {
                 continue;
             }
-
-            invoker.StartCoroutine(sub.coroutineFunc());
+            yield return curr.coroutineFunc();
         }
+    }
+
+    private void RemoveDestroyed() {
+        subscriberList.RemoveAll(p => p.owner == null);
     }
 
     public void Clear()
     {
         subscriberList.Clear();
-        subscriberInfo.Clear();
     }
-    ^ Figure these out last :3
-    */
 }
 
 
@@ -112,15 +116,17 @@ public class IEnumeratorEventDrawer : PropertyDrawer
         position.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.LabelField(position, label.text, EditorStyles.boldLabel);
 
+
+        var subscribers = safeEvent.GetSubscribers();
+
         // Draw each subscriber info
-        for (int i = 0; i < safeEvent.subscriberList.Count; i++)
+        for (int i = 0; i < subscribers.Count; i++)
         {
-            IEnumeratorEvent.Subscriber curr = safeEvent.subscriberList[i];
+            IEnumeratorEvent.Subscriber curr = subscribers[i];
             position.y += EditorGUIUtility.singleLineHeight;
 
             Rect labelRect = new(position.x, position.y, position.width * 0.7f, position.height);
             Rect objectFieldRect = new(position.x + position.width * 0.72f, position.y, position.width * 0.25f, position.height);
-
             EditorGUI.LabelField(position, $"[{curr.coroutineFunc.Method.Name}]");
             EditorGUI.ObjectField(objectFieldRect, curr.owner, typeof(MonoBehaviour), true);
         }
@@ -129,7 +135,7 @@ public class IEnumeratorEventDrawer : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         IEnumeratorEvent safeEvent = fieldInfo.GetValue(property.serializedObject.targetObject) as IEnumeratorEvent;
-        int subscriberCount = safeEvent?.subscriberList.Count ?? 0;
+        int subscriberCount = safeEvent?.GetSubscribers().Count ?? 0;
         return EditorGUIUtility.singleLineHeight * (1 + subscriberCount);
     }
 }

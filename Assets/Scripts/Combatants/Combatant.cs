@@ -12,8 +12,10 @@ public interface ICombatant : Actor {
 [RequireComponent(typeof(CombatantBehavior))]
 public class Combatant : MonoBehaviour, ICombatant
 {
+    // All events that statuses can tap into
     [SerializeField]
-    public IEnumeratorEvent BeforeRefresh;
+    public IEnumeratorEvent OnRefresh;
+
 
     [SerializeField]
     private DefaultStats defaultStats;
@@ -23,7 +25,6 @@ public class Combatant : MonoBehaviour, ICombatant
         if (defaultStats != null) {
             stats = defaultStats.statline.Copy();
         }
-        BeforeRefresh.Subscribe(Refresh, this);
     }
 
     public CombatantStats Stats() => stats;
@@ -31,7 +32,7 @@ public class Combatant : MonoBehaviour, ICombatant
     public IEnumerator Refresh() {
         // yield return BeforeRefresh.Invoke();
         // TODO -> We use this to adjust cooldowns, etc
-        yield return null;
+        yield return OnRefresh.Invoke();
     }
 
     public IEnumerator Act() {
