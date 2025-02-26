@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Burn : CombatantStatus, Actor
+public class Burn : CombatantStatus
 {
-    public override void Combine() {
-        foreach (Burn b in Parent.GetComponentsInChildren<Burn>().Where(c => c != this)) {
-            Destroy(b.gameObject);
-        }
+    public void Awake() {
+        // Parent.BeforeRefresh += BurnPlayer;
     }
 
-    public override IEnumerator Act() {
+    public IEnumerator BurnPlayer() {
         Parent.Stats().health -= 2;
         yield return null;
     }

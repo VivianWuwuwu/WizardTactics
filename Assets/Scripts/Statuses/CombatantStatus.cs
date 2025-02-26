@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Combatant))]
 public abstract class CombatantStatus : MonoBehaviour
 {
     public Combatant Parent {get => transform.parent?.GetComponent<Combatant>();}
@@ -12,14 +11,6 @@ public abstract class CombatantStatus : MonoBehaviour
             Debug.LogError($"'{gameObject.name}' requires a parent Combatant! Fix this before running the game.");
         }
     }
-
-    public virtual void Combine() {
-        return;
-    }
-
-    public void Awake() {
-        Combine();
-    }
-
-    public abstract IEnumerator Act();
 }
+
+// TODO -> Figure out a nice solution for combinations / stacking

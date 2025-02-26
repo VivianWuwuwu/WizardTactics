@@ -13,6 +13,9 @@ public interface ICombatant : Actor {
 public class Combatant : MonoBehaviour, ICombatant
 {
     [SerializeField]
+    public IEnumeratorEvent BeforeRefresh;
+
+    [SerializeField]
     private DefaultStats defaultStats;
     private CombatantStats stats;
 
@@ -20,11 +23,13 @@ public class Combatant : MonoBehaviour, ICombatant
         if (defaultStats != null) {
             stats = defaultStats.statline.Copy();
         }
+        BeforeRefresh.Subscribe(Refresh, this);
     }
 
     public CombatantStats Stats() => stats;
 
     public IEnumerator Refresh() {
+        // yield return BeforeRefresh.Invoke();
         // TODO -> We use this to adjust cooldowns, etc
         yield return null;
     }
