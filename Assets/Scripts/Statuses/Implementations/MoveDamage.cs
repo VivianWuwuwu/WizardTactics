@@ -1,17 +1,10 @@
 using System.Collections;
 
-public class MoveDamage : CombatantStatus
+public class MoveDamage : EventStatus
 {
     public int Amount;
-    public void OnEnable() {
-        Parent.OnRefresh.Subscribe(Damage, this);
-    }
-
-    public void OnDisable() {
-        Parent.OnRefresh.Unsubscribe(Damage);
-    }
-
-    public IEnumerator Damage() {
+    public override SubscribableIEnumerator Target() => Parent.OnMove;
+    public override IEnumerator Act() {
         Parent.Stats().health -= Amount;
         yield return null;
     }

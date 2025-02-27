@@ -1,22 +1,16 @@
 using System.Collections;
 
-public class Timer : CombatantStatus
+public class Timer : EventStatus
 {
-    public int duration; // how many turns this lasts for
+    public int Duration; // how many turns this lasts for
+    public override int GetPriority() => -1;
+    public override SubscribableIEnumerator Target() => Parent.OnRefresh;
 
-    public void OnEnable() {
-        Parent.OnRefresh.Subscribe(TicDown, this, -1);
-    }
-
-    public void OnDisable() {
-        Parent.OnRefresh.Unsubscribe(TicDown);
-    }
-
-    public IEnumerator TicDown() {
-        duration--;
-        if (duration == 0) {
-            
-        }
+    public override IEnumerator Act() {
         yield return null;
+        Duration--;
+        if (Duration == 0) {
+            Destroy(gameObject);
+        }
     }
 }

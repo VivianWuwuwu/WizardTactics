@@ -14,8 +14,13 @@ public class Combatant : MonoBehaviour, ICombatant
 {
     // All events that statuses can tap into
     [SerializeField]
-    public IEnumeratorEvent OnRefresh;
+    public SubscribableIEnumerator OnRefresh;
 
+    [SerializeField]
+    public SubscribableIEnumerator OnMove;
+
+    [SerializeField]
+    public SubscribableIEnumerator OnAttack;
 
     [SerializeField]
     private DefaultStats defaultStats;
