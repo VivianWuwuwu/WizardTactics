@@ -1,6 +1,6 @@
 using System.Collections;
 
-public class Timer : EventStatus
+public class Timer : CombatantEffect
 {
     public int Duration; // how many turns this lasts for
     public override int GetPriority() => -1;

@@ -1,6 +1,6 @@
 using System.Collections;
 
-public class DealDamage : EventStatus
+public class DealDamage : CombatantEffect
 {
     public int Amount;
     public override SubscribableIEnumerator Target() => Parent.OnRefresh;

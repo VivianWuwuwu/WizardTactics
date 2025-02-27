@@ -1,9 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class EventStatus : CombatantStatus
+[RequireComponent(typeof(CombatantStatus))]
+public abstract class CombatantEffect : MonoBehaviour
 {
+    public Combatant Parent {get => GetComponent<CombatantStatus>().Parent;}
+
     public abstract SubscribableIEnumerator Target();
     public abstract IEnumerator Act();
     public virtual int GetPriority() => 0;
@@ -16,3 +18,4 @@ public abstract class EventStatus : CombatantStatus
         Target().Unsubscribe(Act);
     }
 }
+// We can use this to compose like 99% of primitives
