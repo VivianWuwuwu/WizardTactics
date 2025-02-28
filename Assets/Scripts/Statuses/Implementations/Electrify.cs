@@ -4,6 +4,8 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
+[RequireComponent(typeof(Duration))]
+[RequireComponent(typeof(Stun))]
 public class Electrify : CombatantStatus {
     // TODO -> Define a primitve for stunning the player
     public static IEnumerator Conduct(Water w, Electrify _) {

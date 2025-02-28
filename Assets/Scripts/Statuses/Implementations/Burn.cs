@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(DealDamage))]
-[RequireComponent(typeof(Timer))]
+[RequireComponent(typeof(Duration))]
 public class Burn : CombatantStatusWithBuiltins<Burn>
 {
     public override IEnumerator Stack(Burn existing)

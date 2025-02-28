@@ -26,6 +26,9 @@ public class Combatant : MonoBehaviour, ICombatant
     private DefaultStats defaultStats;
     private CombatantStats stats;
 
+    public bool canMove;
+    public SubscribableMutation<bool> CanMove;
+
     public void Awake() {
         if (defaultStats != null) {
             stats = defaultStats.statline.Copy();
