@@ -186,6 +186,11 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 
 }
 
+/*
+Ok all of this is nonsense spat out by ChatGPT
+We're just using this to give all these framework classes a nice display in the Unity UI. Don't worry about it hehe
+*/
+
 [CustomPropertyDrawer(typeof(SubscribableIEnumerator))]
 public class IEnumSubscriptionDrawer : OrderedSubscriptionDrawer<Func<IEnumerator>>{}
 
@@ -194,3 +199,61 @@ public class SubscribableMutationDrawer<T> :  OrderedSubscriptionDrawer<Func<T, 
 
 [CustomPropertyDrawer(typeof(SubscribableMutation<bool>))]
 public class SubscribableMutationBoolDrawer : SubscribableMutationDrawer<bool>{}
+
+
+// AND THE MUTATIONS I GUESS? UGH
+
+[CustomPropertyDrawer(typeof(MutatableValue<>), true)]
+public class MutatableValueDrawer : PropertyDrawer
+{
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        Rect fieldRect = new Rect(position.x, position.y, position.width - 30, position.height);
+
+        string value = GetMutatedValue(property);
+        EditorGUI.PropertyField(fieldRect, property, label, true);
+        if (property.isExpanded) {
+            // It'd be so..... cool.... to prettify this l8r
+            Rect buttonRect = new Rect(fieldRect.x + 12, fieldRect.y + fieldRect.height - 17, 100, 20);
+            if (GUI.Button(buttonRect, "Log value")) {
+                Debug.Log($"Mutated Value got Value:\n{GetMutatedValue(property)}");
+            }
+        }
+    }
+
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        float height = EditorGUI.GetPropertyHeight(property, label, true);
+        if (property.isExpanded) {
+            height += 20;
+        }
+        return height;
+    }
+
+    // Absolute reflection black magic spat out here by chatgpt
+    private string GetMutatedValue(SerializedProperty property)
+    {
+        object parentObject = GetParentObject(property);
+        if (parentObject == null) return null;
+
+        object mutatableValue = fieldInfo.GetValue(parentObject);
+        if (mutatableValue == null) return null;
+
+        PropertyInfo getProperty = mutatableValue.GetType().GetProperty("Get");
+        object mutatedValue = getProperty?.GetValue(mutatableValue);
+        return $"{mutatedValue}";
+    }
+
+    private object GetParentObject(SerializedProperty property)
+    {
+        object target = property.serializedObject.targetObject;
+        string[] elements = property.propertyPath.Split('.');
+        for (int i = 0; i < elements.Length - 1; i++)
+        {
+            FieldInfo field = target.GetType().GetField(elements[i], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field == null) return null;
+            target = field.GetValue(target);
+        }
+        return target;
+    }
+}
