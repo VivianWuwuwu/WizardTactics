@@ -8,28 +8,9 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 
 /*
-An "SubscribableIEnumerator" is effectively an Event, but with IEnumerator subscribers rather than functions
-
-Each subscriber is executed in order. This allows us to enqueue a number of subscribers, and invoke each in order
-
-
-EXAMPLE USEAGE:
-private SubscribableIEnumerator myEvent = new SubscribableIEnumerator();
-
-private void Start()
-{
-    myEvent += MyCoroutine;
-    myEvent += AnotherCoroutine;
-
-    StartCoroutine(myEvent.Invoke());
-
-    myEvent -= MyCoroutine; // Unsubscribing an event
-}
-
-
-(We'll add these to the combatant to facilitate Refresh, Attack funcs that statuses can hook into)
+An "OrderedSubscription" is basically a Priority Queue with references to the Monobehaviors for tracing subscribers
+Each subscriber sorted executed in priority order (tie breaker is subscription order)
 */
-
 [Serializable]
 public class OrderedSubscription<ItemType> {
     public class Subscriber
@@ -82,6 +63,12 @@ public class OrderedSubscription<ItemType> {
     }
 }
 
+/*
+A SubscribableIEnumerator is an OrderedQueue that is able to zip all of its Enumerators into a single larger Coroutine
+
+We generally use this to inject behavior into phases of a combatant's turn. IE:
+[Injected burn deals damage] -> Player refreshes -> [Injected burn status tics down]
+*/
 [Serializable]
 public class SubscribableIEnumerator : OrderedSubscription<Func<IEnumerator>>
 {
@@ -119,6 +106,12 @@ public class SubscribableMutation<T> : OrderedSubscription<Func<T, T>>
     }
 }
 
+/*
+A MutatableValue describes a value that can be edited via attached mutators, while still exposing the original value
+
+We generally use this to safely perform modifications on player stats
+Priority matters here, for example a 2x multiplier should apply AFTER a +10 attack modifier
+*/
 [Serializable]
 public class MutatableValue<T>
 {
