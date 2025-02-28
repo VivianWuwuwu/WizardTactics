@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
+using System;
 
 [CreateAssetMenu(menuName = "ScriptableObjects/StatusRegistry")]
 public class StatusRegistry : ScriptableObject {
@@ -27,10 +28,19 @@ public class StatusRegistry : ScriptableObject {
             Debug.Log($"Removing invalid prefab: {invalid.name}");
         }
         prefabs = validPrefabs;
-        // TODO - Filer for duplicate status definitions as well
-    }
 
-    // Finally -> Property draw a set of supported status types
+        // Filter out duplicate prefab types as well (IE two conflicting registry entries for <Burn>)
+        var types = new HashSet<Type>();
+        for (int i = prefabs.Count - 1; i >= 0; i--) {
+            CombatantStatus curr = prefabs[i].GetComponent<CombatantStatus>();
+            Type statusType = curr.GetType();
+            if (types.Contains(statusType)) {
+                Debug.Log($"Removing duplicate prefab: {curr.gameObject.name}");
+                prefabs.RemoveAt(i);
+            }
+            types.Add(statusType);
+        }
+    }
 }
 
 [CustomEditor(typeof(StatusRegistry))]
