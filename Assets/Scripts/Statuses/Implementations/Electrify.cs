@@ -4,7 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[RequireComponent(typeof(Duration))]
+[RequireComponent(typeof(Timer))]
 [RequireComponent(typeof(Stun))]
 public class Electrify : CombatantStatus {
     // TODO -> Define a primitve for stunning the player

@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Duration))]
+[RequireComponent(typeof(Timer))]
 [RequireComponent(typeof(Stun))]
 public class Entangle : CombatantStatusWithBuiltins<Entangle> {
     private int amount = 1;
