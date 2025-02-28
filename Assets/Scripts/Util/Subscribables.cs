@@ -17,6 +17,7 @@ public class OrderedSubscription<ItemType> {
     {
         public MonoBehaviour owner;
         public ItemType item;
+        public bool Stop; // If a subscriber has a "Stop", we just cut-off the queue at this subscriber. We can use this to override
         public readonly int priority;
 
         public Subscriber(MonoBehaviour owner, ItemType item, int priority)
@@ -50,7 +51,19 @@ public class OrderedSubscription<ItemType> {
     }
 
     public List<Subscriber> GetSubscribers() {
-        return subscriberList.OrderByDescending(s => s.priority).ToList();
+        return subscriberList.Where(s => s.owner != null).OrderByDescending(s => s.priority).ToList();
+    }
+
+    // Returns all subscribers, ordered, halting at the first "Stop"
+    public List<Subscriber> GetActiveSubscribers() {
+        var trimmed = new List<Subscriber>();
+        foreach (var sub in GetSubscribers()) {
+            trimmed.Add(sub);
+            if (sub.Stop) {
+                return trimmed;
+            }
+        }
+        return trimmed;
     }
 
     public void Sync() {
@@ -74,11 +87,10 @@ public class SubscribableIEnumerator : OrderedSubscription<Func<IEnumerator>>
 {
     public IEnumerator Invoke()
     {
-        var ordered = GetSubscribers();
+        var ordered = GetActiveSubscribers();
         while (ordered.Any()) {
             Subscriber curr = ordered.First();
             ordered.RemoveAt(0);
-
             if (!curr.IsValid()) {
                 continue;
             }
@@ -92,7 +104,7 @@ public class SubscribableMutation<T> : OrderedSubscription<Func<T, T>>
 {
     public T Mutate(T original)
     {
-        var ordered = GetSubscribers();
+        var ordered = GetActiveSubscribers();
         while (ordered.Any()) {
             Subscriber curr = ordered.First();
             ordered.RemoveAt(0);
