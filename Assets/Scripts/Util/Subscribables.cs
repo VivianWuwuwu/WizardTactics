@@ -17,14 +17,15 @@ public class OrderedSubscription<ItemType> {
     {
         public MonoBehaviour owner;
         public ItemType item;
-        public bool Stop; // If a subscriber has a "Stop", we just cut-off the queue at this subscriber. We can use this to override
+        public bool forceStop; // If a subscriber has a "Stop", we just cut-off the queue at this subscriber. We can use this to override
         public readonly int priority;
 
-        public Subscriber(MonoBehaviour owner, ItemType item, int priority)
+        public Subscriber(MonoBehaviour owner, ItemType item, int priority, bool forceStop)
         {
             this.owner = owner;
             this.item = item;
             this.priority = priority;
+            this.forceStop = forceStop;
         }
 
         public bool IsValid() => owner != null && owner.isActiveAndEnabled;
@@ -32,11 +33,11 @@ public class OrderedSubscription<ItemType> {
 
     private List<Subscriber> subscriberList = new();
 
-    public void Subscribe(ItemType item, MonoBehaviour owner, int priority = 0)
+    public void Subscribe(ItemType item, MonoBehaviour owner, int priority = 0, bool forceStop = false)
     {
         if (owner == null || item == null) return;
 
-        var subscriber = new Subscriber(owner, item, priority);
+        var subscriber = new Subscriber(owner, item, priority, forceStop);
         subscriberList.Add(subscriber);
     }
 
@@ -59,7 +60,7 @@ public class OrderedSubscription<ItemType> {
         var trimmed = new List<Subscriber>();
         foreach (var sub in GetSubscribers()) {
             trimmed.Add(sub);
-            if (sub.Stop) {
+            if (sub.forceStop) {
                 return trimmed;
             }
         }
@@ -135,7 +136,15 @@ public class MutatableValue<T>
     }
 }
 
-// Note that this works for any subscription type. We'll need to overload with specific drawer types if we want em to show up in the UI
+/*
+PROPERTY DRAWERS TO MAKE THESE QUEUES LOOK NICE IN THE EDITOR
+
+Ok all of this is nonsense spat out by ChatGPT
+We're just using this to give all these framework classes a nice display in the Unity UI. Don't worry about it hehe
+
+DO NOT BOTHER LOOKING BELOW
+*/
+// This drawer works for any subscription type. We'll need to overload with specific drawer types if we want em to show up in the UI
 public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -163,6 +172,22 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 
             Rect objectFieldRect = new(position.x, position.y, position.width * 0.25f, position.height);
             EditorGUI.ObjectField(objectFieldRect, curr.owner, typeof(MonoBehaviour), true);
+
+            // "X" Label Position
+            if (curr.forceStop) {
+                float xSize = position.height; // Square size based on row height
+                Rect xLabelRect = new Rect(objectFieldRect.xMax + 5, position.y, xSize, xSize);
+
+                // Create a custom style for the "X"
+                GUIStyle xStyle = new GUIStyle(EditorStyles.label)
+                {
+                    fontSize = 14,
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = Color.red },
+                    alignment = TextAnchor.MiddleCenter
+                };
+                GUI.Label(xLabelRect, EditorGUIUtility.IconContent("console.erroricon"), xStyle);
+            }
         }
     }
 
@@ -197,15 +222,6 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
     }
 
 }
-
-/*
-Ok all of this is nonsense spat out by ChatGPT
-We're just using this to give all these framework classes a nice display in the Unity UI. Don't worry about it hehe
-
-DO NOT BOTHER LOOKING BELOW
-
-VVVV
-*/
 
 [CustomPropertyDrawer(typeof(SubscribableIEnumerator))]
 public class IEnumSubscriptionDrawer : OrderedSubscriptionDrawer<Func<IEnumerator>>{}
