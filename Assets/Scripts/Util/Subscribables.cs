@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 /*
 An "SubscribableIEnumerator" is effectively an Event, but with IEnumerator subscribers rather than functions
@@ -135,8 +136,7 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         // Get the target object (SafeEvent) from SerializedProperty
-        OrderedSubscription<T> subscriptions = fieldInfo.GetValue(property.serializedObject.targetObject) as OrderedSubscription<T>;
-
+        OrderedSubscription<T> subscriptions = GetTarget(property);
         if (subscriptions == null)
         {
             EditorGUI.LabelField(position, label.text, "Subscriptions is null");
@@ -163,11 +163,41 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        SubscribableIEnumerator safeEvent = fieldInfo.GetValue(property.serializedObject.targetObject) as SubscribableIEnumerator;
-        int subscriberCount = safeEvent?.GetSubscribers().Count ?? 0;
+        OrderedSubscription<T> subscriptions = GetTarget(property);
+        int subscriberCount = subscriptions?.GetSubscribers().Count ?? 0;
         return EditorGUIUtility.singleLineHeight * (1 + subscriberCount);
     }
+
+    private OrderedSubscription<T> GetTarget(SerializedProperty property)
+    {
+        object parentObject = GetParentObject(property);
+        return fieldInfo.GetValue(parentObject) as OrderedSubscription<T>;
+    }
+
+    private object GetParentObject(SerializedProperty property)
+    {
+        string path = property.propertyPath;
+        object target = property.serializedObject.targetObject;
+
+        string[] elements = path.Split('.');
+        for (int i = 0; i < elements.Length - 1; i++) // Traverse to the parent object
+        {
+            var type = target.GetType();
+            var field = type.GetField(elements[i], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            if (field == null) return null;
+            target = field.GetValue(target);
+        }
+
+        return target;
+    }
+
 }
 
 [CustomPropertyDrawer(typeof(SubscribableIEnumerator))]
 public class IEnumSubscriptionDrawer : OrderedSubscriptionDrawer<Func<IEnumerator>>{}
+
+// DRAWERS FOR ALL TYPES OF MUTATIONS WE EXPECT TO USE
+public class SubscribableMutationDrawer<T> :  OrderedSubscriptionDrawer<Func<T, T>>{}
+
+[CustomPropertyDrawer(typeof(SubscribableMutation<bool>))]
+public class SubscribableMutationBoolDrawer : SubscribableMutationDrawer<bool>{}
