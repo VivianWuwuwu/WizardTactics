@@ -12,6 +12,9 @@ public interface ICombatant : Actor {
 [RequireComponent(typeof(CombatantBehavior))]
 public class Combatant : MonoBehaviour, ICombatant
 {
+    // We can also mutate fields on the combatants
+    public MutatableValue<bool> CanMove = new MutatableValue<bool>(false);
+
     // All events that statuses can tap into
     [SerializeField]
     public SubscribableIEnumerator OnRefresh;
@@ -25,9 +28,6 @@ public class Combatant : MonoBehaviour, ICombatant
     [SerializeField]
     private DefaultStats defaultStats;
     private CombatantStats stats;
-
-    public bool canMove;
-    public SubscribableMutation<bool> CanMove;
 
     public void Awake() {
         if (defaultStats != null) {

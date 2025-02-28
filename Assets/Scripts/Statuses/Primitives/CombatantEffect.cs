@@ -21,13 +21,13 @@ public abstract class CombatantEvent : CombatantEffect {
 }
 
 public abstract class CombatantMutation<T> : CombatantEffect {
-    public abstract SubscribableMutation<T> Target();
+    public abstract MutatableValue<T> Target();
     public abstract T Mutate(T original);
     public void OnEnable() {
-        Target().Subscribe(Mutate, this, Priority);
+        Target().Mutations.Subscribe(Mutate, this, Priority);
     }
 
     public void OnDisable() {
-        Target().Unsubscribe(this);
+        Target().Mutations.Unsubscribe(this);
     }
 }

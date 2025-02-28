@@ -118,6 +118,17 @@ public class SubscribableMutation<T> : OrderedSubscription<Func<T, T>>
     }
 }
 
+[Serializable]
+public class MutatableValue<T>
+{
+    public T basis;
+    public T Get => Mutations.Mutate(basis);
+    public SubscribableMutation<T> Mutations;
+    public MutatableValue(T basis) {
+        this.basis = basis;
+    }
+}
+
 // Note that this works for any subscription type. We'll need to overload with specific drawer types if we want em to show up in the UI
 public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 {
