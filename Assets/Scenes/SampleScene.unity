@@ -313,7 +313,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1638261403}
+  - {fileID: 1820242465}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -834,7 +834,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allowSelection: 0
---- !u!21 &1638261403
+--- !u!21 &1820242465
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -878,6 +878,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 838952713}
     m_Modifications:
+    - target: {fileID: 1165221346266428306, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165221346266428333, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1165221346266428334, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
       propertyPath: m_Name
       value: Burn

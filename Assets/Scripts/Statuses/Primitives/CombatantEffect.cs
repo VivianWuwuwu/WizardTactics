@@ -1,21 +1,34 @@
 using System.Collections;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 [RequireComponent(typeof(CombatantStatus))]
 public abstract class CombatantEffect : MonoBehaviour
 {
+    public virtual int Priority => 0;
     public Combatant Parent {get => GetComponent<CombatantStatus>().Parent;}
+}
 
+public abstract class CombatantEvent : CombatantEffect {
     public abstract SubscribableIEnumerator Target();
     public abstract IEnumerator Act();
-    public virtual int GetPriority() => 0;
-
     public void OnEnable() {
-        Target().Subscribe(Act, this, GetPriority());
+        Target().Subscribe(Act, this, Priority);
     }
 
     public void OnDisable() {
-        Target().Unsubscribe(Act);
+        Target().Unsubscribe(this);
     }
 }
-// We can use this to compose like 99% of primitives
+
+public abstract class CombatantMutation<T> : CombatantEffect {
+    public abstract SubscribableMutation<T> Target();
+    public abstract T Mutate(T original);
+    public void OnEnable() {
+        Target().Subscribe(Mutate, this, Priority);
+    }
+
+    public void OnDisable() {
+        Target().Unsubscribe(this);
+    }
+}
