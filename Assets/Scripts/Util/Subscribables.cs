@@ -189,6 +189,10 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 /*
 Ok all of this is nonsense spat out by ChatGPT
 We're just using this to give all these framework classes a nice display in the Unity UI. Don't worry about it hehe
+
+DO NOT BOTHER LOOKING BELOW
+
+VVVV
 */
 
 [CustomPropertyDrawer(typeof(SubscribableIEnumerator))]
