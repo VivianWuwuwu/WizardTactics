@@ -313,7 +313,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1820242465}
+  - {fileID: 1659387765}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -463,6 +463,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -536,6 +537,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41b0edf9ba5244a4f80989fc6b597c5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Statuses: {fileID: 11400000, guid: 48262171ee2e1ba4cbf62ef225750be1, type: 2}
 --- !u!1 &838952712
 GameObject:
   m_ObjectHideFlags: 0
@@ -834,7 +848,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allowSelection: 0
---- !u!21 &1820242465
+--- !u!21 &1659387765
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -880,11 +894,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1165221346266428306, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1165221346266428333, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1165221346266428334, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
       propertyPath: m_Name
@@ -938,5 +952,9 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 76beef9fdae7b48468ddf07d0400a374, type: 3}
+    - target: {fileID: 6780832815610319471, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 465f11c4253062144b8b5ec17c4426ab, type: 3}

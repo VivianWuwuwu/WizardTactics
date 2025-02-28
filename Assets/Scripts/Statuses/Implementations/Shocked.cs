@@ -4,9 +4,10 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Electrify : CombatantStatus {
-    // TODO -> Define a primitve for stunning the player
-    public static IEnumerator Conduct(Water w, Electrify _) {
+[RequireComponent(typeof(MoveDamage))]
+[RequireComponent(typeof(Timer))]
+public class Shocked : CombatantStatus {
+    public static IEnumerator Conduct(Water w, Shocked _) {
         GridElement location = w.Parent.GetComponent<GridElement>();
         Board b = location.GetBoard();
 
@@ -20,7 +21,7 @@ public class Electrify : CombatantStatus {
 
         w.Destroy();
         foreach (Combatant c in targets) {
-            ResourceLocator.Instance.Statuses.CreateStatus<Electrify>(c);
+            ResourceLocator.Instance.Statuses.CreateStatus<Shocked>(c);
             yield return null;
         }
     }
