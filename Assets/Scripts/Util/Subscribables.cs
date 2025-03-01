@@ -6,6 +6,7 @@ using UnityEditor;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Xml.Schema;
 
 /*
 An "OrderedSubscription" is basically a Priority Queue with references to the Monobehaviors for tracing subscribers
@@ -31,7 +32,13 @@ public class OrderedSubscription<ItemType> {
         public bool IsValid() => owner != null && owner.isActiveAndEnabled;
     }
 
-    private List<Subscriber> subscriberList = new();
+    private List<Subscriber> subscriberList;
+    public MonoBehaviour owner;
+
+    public OrderedSubscription(MonoBehaviour owner) {
+        subscriberList = new List<Subscriber>();
+        this.owner = owner;
+    }
 
     public void Subscribe(ItemType item, MonoBehaviour owner, int priority = 0, bool forceStop = false)
     {
@@ -52,11 +59,18 @@ public class OrderedSubscription<ItemType> {
     }
 
     public List<Subscriber> GetSubscribers() {
-        return subscriberList.Where(s => s.owner != null).OrderByDescending(s => s.priority).ToList();
+        if (subscriberList == null) {
+            return null;
+        }
+        Sync();
+        return subscriberList.OrderByDescending(s => s.priority).ToList();
     }
 
     // Returns all subscribers, ordered, halting at the first "Stop"
     public List<Subscriber> GetActiveSubscribers() {
+        if (GetSubscribers() == null) {
+            return null;
+        }
         var trimmed = new List<Subscriber>();
         foreach (var sub in GetSubscribers()) {
             trimmed.Add(sub);
@@ -86,6 +100,11 @@ We generally use this to inject behavior into phases of a combatant's turn. IE:
 [Serializable]
 public class SubscribableIEnumerator : OrderedSubscription<Func<IEnumerator>>
 {
+    public SubscribableIEnumerator(MonoBehaviour owner) : base(owner){}
+    public SubscribableIEnumerator(MonoBehaviour owner, Func<IEnumerator> basis) : base(owner){
+        this.Subscribe(basis, owner);
+    }
+
     public IEnumerator Invoke()
     {
         var ordered = GetActiveSubscribers();
@@ -103,9 +122,14 @@ public class SubscribableIEnumerator : OrderedSubscription<Func<IEnumerator>>
 [Serializable]
 public class SubscribableMutation<T> : OrderedSubscription<Func<T, T>>
 {
+    public SubscribableMutation(MonoBehaviour owner) : base(owner){}
+
     public T Mutate(T original)
     {
         var ordered = GetActiveSubscribers();
+        if (ordered == null) {
+            return original;
+        }
         while (ordered.Any()) {
             Subscriber curr = ordered.First();
             ordered.RemoveAt(0);
@@ -131,7 +155,8 @@ public class MutatableValue<T>
     public T basis;
     public T Get => Mutations.Mutate(basis);
     public SubscribableMutation<T> Mutations;
-    public MutatableValue(T basis) {
+    public MutatableValue(MonoBehaviour owner, T basis) {
+        Mutations = new SubscribableMutation<T>(owner);
         this.basis = basis;
     }
 }
@@ -155,15 +180,16 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
         {
             EditorGUI.LabelField(position, label.text, "Subscriptions is null");
             return;
+        } else if (subscriptions.GetSubscribers() == null) {
+            EditorGUI.LabelField(position, label.text, "Subscriptions not initialized");
+            return;
         }
 
         // Draw the label
         position.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.LabelField(position, label.text, EditorStyles.boldLabel);
 
-
         var subscribers = subscriptions.GetSubscribers();
-
         // Draw each subscriber info
         for (int i = 0; i < subscribers.Count; i++)
         {
@@ -194,7 +220,11 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         OrderedSubscription<T> subscriptions = GetTarget(property);
-        int subscriberCount = subscriptions?.GetSubscribers().Count ?? 0;
+        var subs = subscriptions?.GetSubscribers();
+        int subscriberCount = 0;
+        if (subs != null) {
+            subscriberCount = subs.Count;
+        }
         return EditorGUIUtility.singleLineHeight * (1 + subscriberCount);
     }
 
