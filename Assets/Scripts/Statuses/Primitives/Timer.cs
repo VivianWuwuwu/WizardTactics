@@ -4,7 +4,7 @@ public class Timer : CombatantEvent
 {
     public override int Priority => -1;
     public int Duration; // how many turns this lasts for
-    public override SubscribableIEnumerator Target() => Parent.OnRefresh;
+    public override EditableIEnumerator Target() => Parent.OnRefresh;
 
     public override IEnumerator Act() {
         yield return null;

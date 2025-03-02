@@ -9,11 +9,11 @@ using System.Reflection;
 using System.Xml.Schema;
 
 /*
-An "OrderedSubscription" is basically a Priority Queue with references to the Monobehaviors for tracing subscribers
+An "OrderedEditor" is basically a Priority Queue with references to the Monobehaviors for tracing subscribers
 Each subscriber sorted executed in priority order (tie breaker is subscription order)
 */
 [Serializable]
-public class OrderedSubscription<ItemType> {
+public class OrderedEditor<ItemType> {
     public class Subscriber
     {
         public MonoBehaviour owner;
@@ -35,12 +35,12 @@ public class OrderedSubscription<ItemType> {
     private List<Subscriber> subscriberList;
     public MonoBehaviour owner;
 
-    public OrderedSubscription(MonoBehaviour owner) {
+    public OrderedEditor(MonoBehaviour owner) {
         subscriberList = new List<Subscriber>();
         this.owner = owner;
     }
 
-    public void Subscribe(ItemType item, MonoBehaviour owner, int priority = 0, bool forceStop = false)
+    public void SubscribeEdit(ItemType item, MonoBehaviour owner, int priority = 0, bool forceStop = false)
     {
         if (owner == null || item == null) return;
 
@@ -98,11 +98,11 @@ We generally use this to inject behavior into phases of a combatant's turn. IE:
 [Injected burn deals damage] -> Player refreshes -> [Injected burn status tics down]
 */
 [Serializable]
-public class SubscribableIEnumerator : OrderedSubscription<Func<IEnumerator>>
+public class EditableIEnumerator : OrderedEditor<Func<IEnumerator>>
 {
-    public SubscribableIEnumerator(MonoBehaviour owner) : base(owner){}
-    public SubscribableIEnumerator(MonoBehaviour owner, Func<IEnumerator> basis) : base(owner){
-        this.Subscribe(basis, owner);
+    public EditableIEnumerator(MonoBehaviour owner) : base(owner){}
+    public EditableIEnumerator(MonoBehaviour owner, Func<IEnumerator> basis) : base(owner){
+        this.SubscribeEdit(basis, owner);
     }
 
     public IEnumerator Invoke()
@@ -120,9 +120,9 @@ public class SubscribableIEnumerator : OrderedSubscription<Func<IEnumerator>>
 }
 
 [Serializable]
-public class SubscribableMutation<T> : OrderedSubscription<Func<T, T>>
+public class EditableMutation<T> : OrderedEditor<Func<T, T>>
 {
-    public SubscribableMutation(MonoBehaviour owner) : base(owner){}
+    public EditableMutation(MonoBehaviour owner) : base(owner){}
 
     public T Mutate(T original)
     {
@@ -150,13 +150,13 @@ We generally use this to safely perform modifications on player stats
 Priority matters here, for example a 2x multiplier should apply AFTER a +10 attack modifier
 */
 [Serializable]
-public class MutatableValue<T>
+public class EditableValue<T>
 {
     public T basis;
-    public T Get => Mutations.Mutate(basis);
-    public SubscribableMutation<T> Mutations;
-    public MutatableValue(MonoBehaviour owner, T basis) {
-        Mutations = new SubscribableMutation<T>(owner);
+    public T Evaluate => Mutations.Mutate(basis);
+    public EditableMutation<T> Mutations;
+    public EditableValue(MonoBehaviour owner, T basis) {
+        Mutations = new EditableMutation<T>(owner);
         this.basis = basis;
     }
 }
@@ -175,7 +175,7 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         // Get the target object (SafeEvent) from SerializedProperty
-        OrderedSubscription<T> subscriptions = GetTarget(property);
+        OrderedEditor<T> subscriptions = GetTarget(property);
         if (subscriptions == null)
         {
             EditorGUI.LabelField(position, label.text, "Subscriptions is null");
@@ -193,7 +193,7 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
         // Draw each subscriber info
         for (int i = 0; i < subscribers.Count; i++)
         {
-            OrderedSubscription<T>.Subscriber curr = subscribers[i];
+            OrderedEditor<T>.Subscriber curr = subscribers[i];
             position.y += EditorGUIUtility.singleLineHeight;
 
             Rect objectFieldRect = new(position.x, position.y, position.width * 0.25f, position.height);
@@ -219,7 +219,7 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        OrderedSubscription<T> subscriptions = GetTarget(property);
+        OrderedEditor<T> subscriptions = GetTarget(property);
         var subs = subscriptions?.GetSubscribers();
         int subscriberCount = 0;
         if (subs != null) {
@@ -228,10 +228,10 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
         return EditorGUIUtility.singleLineHeight * (1 + subscriberCount);
     }
 
-    private OrderedSubscription<T> GetTarget(SerializedProperty property)
+    private OrderedEditor<T> GetTarget(SerializedProperty property)
     {
         object parentObject = GetParentObject(property);
-        return fieldInfo.GetValue(parentObject) as OrderedSubscription<T>;
+        return fieldInfo.GetValue(parentObject) as OrderedEditor<T>;
     }
 
     private object GetParentObject(SerializedProperty property)
@@ -253,19 +253,19 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
 
 }
 
-[CustomPropertyDrawer(typeof(SubscribableIEnumerator))]
+[CustomPropertyDrawer(typeof(EditableIEnumerator))]
 public class IEnumSubscriptionDrawer : OrderedSubscriptionDrawer<Func<IEnumerator>>{}
 
 // DRAWERS FOR ALL TYPES OF MUTATIONS WE EXPECT TO USE
 public class SubscribableMutationDrawer<T> :  OrderedSubscriptionDrawer<Func<T, T>>{}
 
-[CustomPropertyDrawer(typeof(SubscribableMutation<bool>))]
+[CustomPropertyDrawer(typeof(EditableMutation<bool>))]
 public class SubscribableMutationBoolDrawer : SubscribableMutationDrawer<bool>{}
 
 
 // AND THE MUTATIONS I GUESS? UGH
 
-[CustomPropertyDrawer(typeof(MutatableValue<>), true)]
+[CustomPropertyDrawer(typeof(EditableValue<>), true)]
 public class MutatableValueDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

@@ -13,23 +13,23 @@ public interface ICombatant : Actor {
 public class Combatant : MonoBehaviour, ICombatant
 {
     // We can also mutate fields on the combatants
-    public MutatableValue<bool> CanMove;
+    public EditableValue<bool> CanMove;
 
     // All events that statuses can tap into
     [SerializeField]
-    public SubscribableIEnumerator OnRefresh;
+    public EditableIEnumerator OnRefresh;
 
     [SerializeField]
-    public SubscribableIEnumerator OnMove;
+    public EditableIEnumerator OnMove;
 
     [SerializeField]
     private DefaultStats defaultStats;
     private CombatantStats stats;
 
     private void SetupSubscriptions() {
-        CanMove = new MutatableValue<bool>(this, false);
-        OnRefresh = new SubscribableIEnumerator(this, Refresh);
-        OnMove = new SubscribableIEnumerator(this);
+        CanMove = new EditableValue<bool>(this, false);
+        OnRefresh = new EditableIEnumerator(this, Refresh);
+        OnMove = new EditableIEnumerator(this);
     }
 
     public void Awake() 

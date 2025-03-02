@@ -9,10 +9,10 @@ public abstract class CombatantEffect : MonoBehaviour
 }
 
 public abstract class CombatantEvent : CombatantEffect {
-    public abstract SubscribableIEnumerator Target();
+    public abstract EditableIEnumerator Target();
     public abstract IEnumerator Act();
     public void OnEnable() {
-        Target().Subscribe(Act, this, Priority);
+        Target().SubscribeEdit(Act, this, Priority);
     }
 
     public void OnDisable() {
@@ -21,10 +21,10 @@ public abstract class CombatantEvent : CombatantEffect {
 }
 
 public abstract class CombatantMutation<T> : CombatantEffect {
-    public abstract MutatableValue<T> Target();
+    public abstract EditableValue<T> Target();
     public abstract T Mutate(T original);
     public void OnEnable() {
-        Target().Mutations.Subscribe(Mutate, this, Priority);
+        Target().Mutations.SubscribeEdit(Mutate, this, Priority);
     }
 
     public void OnDisable() {
