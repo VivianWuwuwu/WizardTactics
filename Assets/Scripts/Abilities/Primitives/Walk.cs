@@ -7,6 +7,12 @@ using UnityEngine;
 
 public class Walk : PathAbility
 {
+    public override bool Compile(out string debug)
+    {
+        debug = "";
+        return false;
+    }
+
     public override int? GetRange() {
         return 2; // TODO: Get this from the combatant instead
     }

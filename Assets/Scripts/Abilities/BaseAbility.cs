@@ -9,6 +9,12 @@ ANY action a player makes (Moving, Casting a spell, Teleporting, etc) is conside
 [RequireComponent(typeof(GridElement))]
 public abstract class BaseAbility : MonoBehaviour
 {
+    public EditableIEnumerator Action; // <- This is compiled by the class
+
+    [ContextMenu("Compile")]
+    public abstract bool Compile(out string debug);
+
+
     [ContextMenu("Act")]
     private void ActInInspector() {
         IEnumerator action = Act();

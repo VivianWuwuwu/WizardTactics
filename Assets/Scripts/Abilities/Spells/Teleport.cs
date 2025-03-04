@@ -8,6 +8,12 @@ public class Teleport : ChoiceAbility<Vector2Int>
     [SerializeField]
     private Vector2Int inspectorChoice;
 
+    public override bool Compile(out string debug)
+    {
+        debug = "";
+        return false;
+    }
+
     private void OnDrawGizmosSelected()
     {
         choice = inspectorChoice;

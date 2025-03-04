@@ -32,7 +32,7 @@ public class OrderedEditor<ItemType> {
         public bool IsValid() => owner != null && owner.isActiveAndEnabled;
     }
 
-    private List<Subscriber> subscriberList;
+    protected List<Subscriber> subscriberList;
     public MonoBehaviour owner;
 
     public OrderedEditor(MonoBehaviour owner) {
@@ -68,6 +68,7 @@ public class OrderedEditor<ItemType> {
 
     // Returns all subscribers, ordered, halting at the first "Stop"
     public List<Subscriber> GetActiveSubscribers() {
+        Sync();
         if (GetSubscribers() == null) {
             return null;
         }
@@ -81,7 +82,7 @@ public class OrderedEditor<ItemType> {
         return trimmed;
     }
 
-    public void Sync() {
+    private void Sync() {
         subscriberList.RemoveAll(p => p.owner == null);
     }
 
@@ -92,7 +93,25 @@ public class OrderedEditor<ItemType> {
 }
 
 /*
-A SubscribableIEnumerator is an OrderedQueue that is able to zip all of its Enumerators into a single larger Coroutine
+A OrderedQueue is an OrderedEditor that we care about dequeueing in order
+*/
+[Serializable]
+public class OrderedQueue<T> : OrderedEditor<T>
+{
+    public OrderedQueue(MonoBehaviour owner) : base(owner){}
+
+    public Subscriber Dequeue()
+    {
+        var got = GetActiveSubscribers().FirstOrDefault();
+        if (got != null) {
+            subscriberList.Remove(got);
+        }
+        return got;
+    }
+}
+
+/*
+A SubscribableIEnumerator is an OrderedEditor that is able to zip all of its Enumerators into a single larger Coroutine
 
 We generally use this to inject behavior into phases of a combatant's turn. IE:
 [Injected burn deals damage] -> Player refreshes -> [Injected burn status tics down]
@@ -200,11 +219,17 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
             EditorGUI.ObjectField(objectFieldRect, curr.owner, typeof(MonoBehaviour), true);
 
             // "X" Label Position
-            if (curr.forceStop) {
-                float xSize = position.height; // Square size based on row height
-                Rect xLabelRect = new Rect(objectFieldRect.xMax + 5, position.y, xSize, xSize);
-
-                // Create a custom style for the "X"
+            Rect labelRect = new Rect(objectFieldRect.xMax + 5, position.y, position.height, position.height);
+            if (!curr.owner.isActiveAndEnabled) {
+                GUIStyle skipStyle = new GUIStyle(EditorStyles.label)
+                {
+                    fontSize = 14,
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = Color.gray },
+                    alignment = TextAnchor.MiddleCenter
+                };
+                GUI.Label(labelRect, EditorGUIUtility.IconContent("console.erroricon"), skipStyle);
+            } else if (curr.forceStop) {
                 GUIStyle xStyle = new GUIStyle(EditorStyles.label)
                 {
                     fontSize = 14,
@@ -212,7 +237,7 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
                     normal = { textColor = Color.red },
                     alignment = TextAnchor.MiddleCenter
                 };
-                GUI.Label(xLabelRect, EditorGUIUtility.IconContent("console.erroricon"), xStyle);
+                GUI.Label(labelRect, EditorGUIUtility.IconContent("console.erroricon"), xStyle);
             }
         }
     }
