@@ -10,22 +10,28 @@ using System.Reflection;
 An "OrderedEditor" is basically a Priority Queue with references to the Monobehaviors for tracing subscribers
 Each subscriber sorted executed in priority order (tie breaker is subscription order)
 */
-public class Subscriber<T>
-{
+public class Subscriber {
     public MonoBehaviour owner;
-    public T item;
     public bool forceStop; // If a subscriber has a "Stop", we just cut-off the queue at this subscriber. We can use this to override
     public readonly int priority;
 
-    public Subscriber(MonoBehaviour owner, T item, int priority, bool forceStop)
+    protected Subscriber(MonoBehaviour owner, int priority, bool forceStop)
     {
         this.owner = owner;
-        this.item = item;
         this.priority = priority;
         this.forceStop = forceStop;
     }
 
     public bool IsValid() => owner != null && owner.isActiveAndEnabled;
+}
+
+public class Subscriber<T> : Subscriber
+{
+    public T item;
+    public Subscriber(MonoBehaviour owner, T item, int priority, bool forceStop) : base(owner, priority, forceStop)
+    {
+        this.item = item;
+    }
 }
 
 [Serializable]
