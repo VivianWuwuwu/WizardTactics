@@ -4,39 +4,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Reflection;
-using System.Xml.Schema;
 
 /*
 An "OrderedEditor" is basically a Priority Queue with references to the Monobehaviors for tracing subscribers
 Each subscriber sorted executed in priority order (tie breaker is subscription order)
 */
-[Serializable]
-public class OrderedEditor<ItemType> {
-    public class Subscriber
+public class Subscriber<T>
+{
+    public MonoBehaviour owner;
+    public T item;
+    public bool forceStop; // If a subscriber has a "Stop", we just cut-off the queue at this subscriber. We can use this to override
+    public readonly int priority;
+
+    public Subscriber(MonoBehaviour owner, T item, int priority, bool forceStop)
     {
-        public MonoBehaviour owner;
-        public ItemType item;
-        public bool forceStop; // If a subscriber has a "Stop", we just cut-off the queue at this subscriber. We can use this to override
-        public readonly int priority;
-
-        public Subscriber(MonoBehaviour owner, ItemType item, int priority, bool forceStop)
-        {
-            this.owner = owner;
-            this.item = item;
-            this.priority = priority;
-            this.forceStop = forceStop;
-        }
-
-        public bool IsValid() => owner != null && owner.isActiveAndEnabled;
+        this.owner = owner;
+        this.item = item;
+        this.priority = priority;
+        this.forceStop = forceStop;
     }
 
-    protected List<Subscriber> subscriberList;
+    public bool IsValid() => owner != null && owner.isActiveAndEnabled;
+}
+
+[Serializable]
+public class OrderedEditor<ItemType> {
+    protected List<Subscriber<ItemType>> subscriberList;
     public MonoBehaviour owner;
 
     public OrderedEditor(MonoBehaviour owner) {
-        subscriberList = new List<Subscriber>();
+        subscriberList = new List<Subscriber<ItemType>>();
         this.owner = owner;
     }
 
@@ -44,7 +42,7 @@ public class OrderedEditor<ItemType> {
     {
         if (owner == null || item == null) return;
 
-        var subscriber = new Subscriber(owner, item, priority, forceStop);
+        var subscriber = new Subscriber<ItemType>(owner, item, priority, forceStop);
         subscriberList.Add(subscriber);
     }
 
@@ -58,7 +56,7 @@ public class OrderedEditor<ItemType> {
         subscriberList.RemoveAll(p => p.owner == owner);
     }
 
-    public List<Subscriber> GetSubscribers() {
+    public List<Subscriber<ItemType>> GetSubscribers() {
         if (subscriberList == null) {
             return null;
         }
@@ -67,12 +65,12 @@ public class OrderedEditor<ItemType> {
     }
 
     // Returns all subscribers, ordered, halting at the first "Stop"
-    public List<Subscriber> GetActiveSubscribers() {
+    public List<Subscriber<ItemType>> GetActiveSubscribers() {
         Sync();
         if (GetSubscribers() == null) {
             return null;
         }
-        var trimmed = new List<Subscriber>();
+        var trimmed = new List<Subscriber<ItemType>>();
         foreach (var sub in GetSubscribers()) {
             trimmed.Add(sub);
             if (sub.forceStop) {
@@ -89,24 +87,6 @@ public class OrderedEditor<ItemType> {
     public void Clear()
     {
         subscriberList.Clear();
-    }
-}
-
-/*
-A OrderedQueue is an OrderedEditor that we care about dequeueing in order
-*/
-[Serializable]
-public class OrderedQueue<T> : OrderedEditor<T>
-{
-    public OrderedQueue(MonoBehaviour owner) : base(owner){}
-
-    public Subscriber Dequeue()
-    {
-        var got = GetActiveSubscribers().FirstOrDefault();
-        if (got != null) {
-            subscriberList.Remove(got);
-        }
-        return got;
     }
 }
 
@@ -128,7 +108,7 @@ public class EditableIEnumerator : OrderedEditor<Func<IEnumerator>>
     {
         var ordered = GetActiveSubscribers();
         while (ordered.Any()) {
-            Subscriber curr = ordered.First();
+            var curr = ordered.First();
             ordered.RemoveAt(0);
             if (!curr.IsValid()) {
                 continue;
@@ -150,7 +130,7 @@ public class EditableMutation<T> : OrderedEditor<Func<T, T>>
             return original;
         }
         while (ordered.Any()) {
-            Subscriber curr = ordered.First();
+            var curr = ordered.First();
             ordered.RemoveAt(0);
             if (!curr.IsValid()) {
                 continue;
@@ -212,7 +192,7 @@ public class OrderedSubscriptionDrawer<T> : PropertyDrawer
         // Draw each subscriber info
         for (int i = 0; i < subscribers.Count; i++)
         {
-            OrderedEditor<T>.Subscriber curr = subscribers[i];
+            var curr = subscribers[i];
             position.y += EditorGUIUtility.singleLineHeight;
 
             Rect objectFieldRect = new(position.x, position.y, position.width * 0.25f, position.height);
