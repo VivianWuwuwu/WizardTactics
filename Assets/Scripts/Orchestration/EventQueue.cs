@@ -80,6 +80,8 @@ public class ActionQueue {
 
         The general rationale is that these params should only affect the ordering of the local queue, not the containing queue
         */
+        Debug.Log("Unpacking subqueue...");
+
         Stack<Subscriber<Func<IEnumerator>>> extracted = new Stack<Subscriber<Func<IEnumerator>>>();
         var packed = new ActionQueue(subqueue.item); // Get a local copy of the queue
         while(packed.Any()) {
@@ -133,10 +135,21 @@ public class ActionQueueDrawer : PropertyDrawer
         position.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.LabelField(position, label.text, EditorStyles.boldLabel);
 
+        // Create a button below the property field
+        Rect buttonRect = new Rect(position.x, position.y + EditorGUI.GetPropertyHeight(property), position.width, 30);
+        if (GUI.Button(buttonRect, "Step"))
+        {
+            var curr = actionQueue.Pop();
+            var action = curr.item();
+            while (action.MoveNext()) {} // Evaluate the action :3
+        }
+        position.y += buttonRect.height;
+
         var subscribers = actionQueue.events;
         // Draw each subscriber info
         for (int i = 0; i < subscribers.Count; i++)
         {
+            position.y += EditorGUIUtility.singleLineHeight;
             var curr = subscribers[i];
             curr.Switch(
                 action => DrawSubscriber(action, position),
@@ -146,8 +159,6 @@ public class ActionQueueDrawer : PropertyDrawer
     }
 
     private void DrawSubscriber(Subscriber curr, Rect position) {
-        position.y += EditorGUIUtility.singleLineHeight;
-
         Rect objectFieldRect = new(position.x, position.y, position.width * 0.25f, position.height);
         EditorGUI.ObjectField(objectFieldRect, curr.owner, typeof(MonoBehaviour), true);
 
