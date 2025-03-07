@@ -28,10 +28,11 @@ public class QueueTester : MonoBehaviour
         actions.Push(SayMeow, this);
         actions.Push(SayHi, this);
 
-
         subqueue = new ActionQueue();
         subqueue.Push(SayMeow, this);
         subqueue.Push(SayHi, this);
+        subqueue.Push(SayBark, this);
+        subqueue.Push(SayMeow, this);
 
         actions.Push(subqueue, this);
         actions.Push(SayBark, this);
